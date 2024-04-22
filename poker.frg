@@ -241,3 +241,231 @@ pred playerAllIns {
 pred playerAction[r : RoundState] {
     playerChecks or playerCalls or playerRaises or playerAllIns
 }
+
+/**
+* This predicate handles the logic of the overall game. It first initializes the game in its preflop state, it then checks
+* that there is a winner in its final postRiver state. Then for all states in the game, it checks that there is a valid
+* transition to the next state. Finally, it checks that once there is a winner the game stops and there are no new states. 
+*/
+pred traces {
+    initRound[preFlop]
+    eventually winner[postRiver]
+    all r : RoundState | {
+        always (some r' implies validTransition[r, r'])
+        always (winner[r] implies not some r')
+    }
+}
+
+/**
+* This predicate checks the deck, board and all player's hands are formed correctly.
+*/
+pred wellformedCards {
+    uniqueCards
+    all c : Card | all r : RoundState | {
+        c in r.deck implies {
+            c not in r.board
+            all p : Player | {
+                c not in p.hand
+            }
+        }
+        c in r.board implies {
+            c not in r.deck
+            all p : Player | {
+                c not in p.hand
+            }
+        }
+        some disj p1, p2 : Player | some i : Int {
+            c in p1.hand implies {
+                c not in r.deck
+                c not in r.board
+                c not in p2.hand
+            }
+        }
+    }
+}
+
+/**
+* This predicate checks that all players are reachable from each other, meaning there is a cycle of players.
+*/
+pred playerRotation {
+    all p1, p2 : Player | {
+        reachable[p1, p2, nextPlayer]
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a pair.
+* Param: p - a player
+*/
+pred hasPair[p : Player] {
+    some r : RoundState | some rank1 : Rank | {
+        p.hand = r.board + p.hand
+        #{i: Int | (p.hand.cards[i]).rank = rank1} = 2
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a two pair.
+* Param: p - a player
+*/
+pred hasTwoPair[p : Player] {
+    some r : RoundState | some disj rank1, rank2 : Rank | {
+        p.hand = r.board + p.hand
+        #{i : Int | (p.hand.cards[i]).rank = rank1} = 2 and #{i : Int | (p.hand.cards[i]).rank = rank2} = 2
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a full house.
+* Param: p - a player
+*/
+pred hasFullHouse[p : Player] {
+    hasThreeofaKind[p] and hasPair[p]
+}
+
+/**
+* This predicate checks if the player's best hand is a straight.
+* Param: p - a player
+*/
+pred hasStraight[p : Player] {
+    some r : RoundState | some r1, r2, r3, r4, r5 : Rank | some i1, i2, i3, i4, i5 : Int | {
+        p.hand = r.board + p.hand
+        (p.hand.cards[i1]).rank = r1 and r2.value = add[r1.value,1]
+        (p.hand.cards[i2]).rank = r2 and r3.value = add[r2.value,1]
+        (p.hand.cards[i3]).rank = r3 and r4.value = add[r3.value,1]
+        (p.hand.cards[i4]).rank = r4 and r5.value = add[r4.value,1]
+        (p.hand.cards[i5]).rank = r5
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a flush.
+* Param: p - a player
+*/
+pred hasFlush[p : Player] {
+    some r : RoundState | some suit1 : Suit | {
+        p.hand = r.board + p.hand
+        #{i: Int | (p.hand.cards[i]).suit = suit1} = 5
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a royal flush.
+* Param: p - a player
+*/
+pred hasRoyalFlush[p : Player] {
+    some r : RoundState | some i1, i2, i3, i4, i5 : Int | {
+        hasStraightFlush[p]
+        p.hand = r.board + p.hand
+        (p.hand.cards[i1]).rank = Ace
+        (p.hand.cards[i2]).rank = King
+        (p.hand.cards[i3]).rank = Queen
+        (p.hand.cards[i4]).rank = Jack
+        (p.hand.cards[i5]).rank = Ten
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a four of a kind.
+* Param: p - a player
+*/
+pred hasFourOfaKind[p : Player] {
+    some r: RoundState | some rank1 : Rank | {
+        p.hand = r.board + p.hand
+        #{i: Int | (p.hand.cards[i]).rank = rank1} = 4
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a three of a kind.
+* Param: p - a player
+*/
+pred hasThreeofaKind[p : Player] {
+    some r: RoundState | some rank1 : Rank | {
+        p.hand = r.board + p.hand
+        #{i: Int | (p.hand.cards[i]).rank = rank1} = 3
+    }
+}
+
+/**
+* This predicate checks if the player's best hand is a straight flush.
+* Param: p - a player
+*/
+pred hasStraightFlush[p : Player] {
+    hasStraight[p] and hasFlush[p]
+}
+
+/**
+* This predicate checks if the player's best hand is a high card.
+* Param: p - a player
+*/
+pred hasHighCard[p : Player] {
+    not hasRoyalFlush[p]
+    not hasStraightFlush[p]
+    not hasFourOfaKind[p]
+    not hasFullHouse[p]
+    not hasFlush[p]
+    not hasStraight[p]
+    not hasThreeofaKind[p]
+    not hasTwoPair[p]
+    not hasPair[p]
+}
+
+/**
+* This predicate checks the hand a player has and sets the players hand to the type of hand they have.
+* Param: p - a player
+*/
+pred evaluateHand[p : Player] {
+    hasRoyalFlush[p] implies p.hand.score = 5
+    hasStraightFlush[p] implies p.hand.score = 4
+    hasFourOfaKind[p] implies p.hand.score = 3
+    hasFullHouse[p] implies p.hand.score = 2
+    hasFlush[p] implies p.hand.score = 1
+    hasStraight[p] implies p.hand.score = 0
+    hasThreeofaKind[p] implies p.hand.score = -1
+    hasTwoPair[p] implies p.hand.score = -2
+    hasPair[p] implies p.hand.score = -3
+    hasHighCard[p] implies p.hand.score = -4
+}
+
+/**
+* This instance is used to optimize the conversion between the rank and value of a card.
+*/
+inst optimize_rank {
+    Rank = `Two + `Three +`Four + `Five + `Six + `Seven + `Eight + `Nine + `Ten + `Jack + `Queen + `King + `Ace
+    Two = `Two
+    `Two.value = (-8)
+    Three = `Three
+    `Three.value = (-7)
+    Four = `Four
+    `Four.value = (-6)
+    Five = `Five
+    `Five.value = (-5)
+    Six = `Six
+    `Six.value = (-4)
+    Seven = `Seven
+    `Seven.value = (-3)
+    Eight = `Eight
+    `Eight.value = (-2)
+    Nine = `Nine
+    `Nine.value = (-1)
+    Ten = `Ten
+    `Ten.value = (0)
+    Jack = `Jack
+    `Jack.value = (1)
+    Queen = `Queen
+    `Queen.value = (2)
+    King = `King
+    `King.value = (3)
+    Ace = `Ace
+    `Ace.value = (4)
+}
+
+run {
+    always wellformedCards
+    always playerRotation
+    some p : Player | {
+        evaluateHand[p]
+    }
+    traces
+} for exactly 12 Card, 2 Player, 4 Int for optimize_rank
