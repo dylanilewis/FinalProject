@@ -300,7 +300,7 @@ pred playerRotation {
 pred hasPair[p : Player] {
     some r : RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        #{i: Int | (p.hand.cards[i]).rank = rank1} = 2
+        // #{rank1 in p.hand.cards.rank} = 2
     }
 }
 
@@ -311,7 +311,7 @@ pred hasPair[p : Player] {
 pred hasTwoPair[p : Player] {
     some r : RoundState | some disj rank1, rank2 : Rank | {
         p.hand = r.board + p.hand
-        #{i : Int | (p.hand.cards[i]).rank = rank1} = 2 and #{i : Int | (p.hand.cards[i]).rank = rank2} = 2
+        // #{rank1 in p.hand.cards.rank} = 2 and #{rank2 in p.hand.cards.rank} = 2
     }
 }
 
@@ -328,13 +328,13 @@ pred hasFullHouse[p : Player] {
 * Param: p - a player
 */
 pred hasStraight[p : Player] {
-    some r : RoundState | some r1, r2, r3, r4, r5 : Rank | some i1, i2, i3, i4, i5 : Int | {
+    some r : RoundState | some r1, r2, r3, r4, r5 : Rank | {
         p.hand = r.board + p.hand
-        (p.hand.cards[i1]).rank = r1 and r2.value = add[r1.value,1]
-        (p.hand.cards[i2]).rank = r2 and r3.value = add[r2.value,1]
-        (p.hand.cards[i3]).rank = r3 and r4.value = add[r3.value,1]
-        (p.hand.cards[i4]).rank = r4 and r5.value = add[r4.value,1]
-        (p.hand.cards[i5]).rank = r5
+        r1 in p.hand.cards.rank and r2.value = add[r1.value,1]
+        r2 in p.hand.cards.rank and r3.value = add[r2.value,1]
+        r3 in p.hand.cards.rank and r4.value = add[r3.value,1]
+        r4 in p.hand.cards.rank and r5.value = add[r4.value,1]
+        r5 in p.hand.cards.rank
     }
 }
 
@@ -343,9 +343,9 @@ pred hasStraight[p : Player] {
 * Param: p - a player
 */
 pred hasFlush[p : Player] {
-    some r : RoundState | some suit1 : Suit | {
+    some r : RoundState | some s : Suit | {
         p.hand = r.board + p.hand
-        #{i: Int | (p.hand.cards[i]).suit = suit1} = 5
+        // #{s in p.hand.cards.suit} = 5
     }
 }
 
@@ -357,11 +357,11 @@ pred hasRoyalFlush[p : Player] {
     some r : RoundState | some i1, i2, i3, i4, i5 : Int | {
         hasStraightFlush[p]
         p.hand = r.board + p.hand
-        (p.hand.cards[i1]).rank = Ace
-        (p.hand.cards[i2]).rank = King
-        (p.hand.cards[i3]).rank = Queen
-        (p.hand.cards[i4]).rank = Jack
-        (p.hand.cards[i5]).rank = Ten
+        Ace in p.hand.cards.rank
+        King in p.hand.cards.rank
+        Queen in p.hand.cards.rank
+        Jack in p.hand.cards.rank
+        Ten in p.hand.cards.rank
     }
 }
 
@@ -372,7 +372,7 @@ pred hasRoyalFlush[p : Player] {
 pred hasFourOfaKind[p : Player] {
     some r: RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        #{i: Int | (p.hand.cards[i]).rank = rank1} = 4
+        // #{rank1 in p.hand.cards.rank} = 4
     }
 }
 
@@ -383,7 +383,7 @@ pred hasFourOfaKind[p : Player] {
 pred hasThreeofaKind[p : Player] {
     some r: RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        #{i: Int | (p.hand.cards[i]).rank = rank1} = 3
+        // #{rank1 in p.hand.cards.rank} = 3
     }
 }
 
