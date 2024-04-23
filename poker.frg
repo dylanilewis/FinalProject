@@ -300,7 +300,7 @@ pred playerRotation {
 pred hasPair[p : Player] {
     some r : RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        // #{rank1 in p.hand.cards.rank} = 2
+        #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2
     }
 }
 
@@ -311,7 +311,7 @@ pred hasPair[p : Player] {
 pred hasTwoPair[p : Player] {
     some r : RoundState | some disj rank1, rank2 : Rank | {
         p.hand = r.board + p.hand
-        // #{rank1 in p.hand.cards.rank} = 2 and #{rank2 in p.hand.cards.rank} = 2
+        #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2 and #{r : Rank | r in p.hand.cards.rank and r = rank2} = 2
     }
 }
 
@@ -343,9 +343,9 @@ pred hasStraight[p : Player] {
 * Param: p - a player
 */
 pred hasFlush[p : Player] {
-    some r : RoundState | some s : Suit | {
+    some r : RoundState | some suit : Suit | {
         p.hand = r.board + p.hand
-        // #{s in p.hand.cards.suit} = 5
+        // #{s : Suit | s in p.hand.cards.suit and s = suit} = 5
     }
 }
 
@@ -372,7 +372,7 @@ pred hasRoyalFlush[p : Player] {
 pred hasFourOfaKind[p : Player] {
     some r: RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        // #{rank1 in p.hand.cards.rank} = 4
+        #{r : Rank | r in p.hand.cards.rank and r = rank1} = 4
     }
 }
 
@@ -383,7 +383,7 @@ pred hasFourOfaKind[p : Player] {
 pred hasThreeofaKind[p : Player] {
     some r: RoundState | some rank1 : Rank | {
         p.hand = r.board + p.hand
-        // #{rank1 in p.hand.cards.rank} = 3
+        #{r : Rank | r in p.hand.cards.rank and r = rank1} = 3
     }
 }
 
