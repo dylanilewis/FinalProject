@@ -251,8 +251,9 @@ pred traces {
     initRound[preFlop]
     eventually winner[postRiver]
     all r : RoundState | {
-        always (some r' implies validTransition[r, r'])
-        always (winner[r] implies not some r')
+        // these 2 lines are broken
+        // always (some r' implies validTransition[r, r'])
+        // winner[r] implies not some r'
     }
 }
 
@@ -345,7 +346,7 @@ pred hasStraight[p : Player] {
 pred hasFlush[p : Player] {
     some r : RoundState | some suit : Suit | {
         p.hand = r.board + p.hand
-        // #{s : Suit | s in p.hand.cards.suit and s = suit} = 5
+        // #{s : Suit | s in p.hand.cards.suit and s = suit} >= 5
     }
 }
 
@@ -432,7 +433,7 @@ pred evaluateHand[p : Player] {
 * This instance is used to optimize the conversion between the rank and value of a card.
 */
 inst optimize_rank {
-    Rank = `Two + `Three +`Four + `Five + `Six + `Seven + `Eight + `Nine + `Ten + `Jack + `Queen + `King + `Ace
+    Rank = `Two + `Three + `Four + `Five + `Six + `Seven + `Eight + `Nine + `Ten + `Jack + `Queen + `King + `Ace
     Two = `Two
     `Two.value = (-8)
     Three = `Three
@@ -464,8 +465,6 @@ inst optimize_rank {
 run {
     always wellformedCards
     always playerRotation
-    some p : Player | {
-        evaluateHand[p]
-    }
+    all p : Player | p in postRiver.players <=> evaluateHand[p]
     traces
 } for exactly 12 Card, 2 Player, 4 Int for optimize_rank
