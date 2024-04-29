@@ -64,13 +64,15 @@ pred dealCards {
     all p : Player | {
         some c1,c2 : Card | {
             p.hand.cards = c1 + c2 implies {c1 != c2}
-            }
+        }
         #(p.hand.cards) = 2
     }
-        //all players have two different cards. Cards cannot be repeated among players
+    //all players have two different cards. Cards cannot be repeated among players
     all disj p1, p2 : Player | {
-            p1.hand.cards != p2.hand.cards
+        some c : Card | {
+            (c in p1.hand.cards => c not in p2.hand.cards) and (c in p2.hand.cards => c not in p1.hand.cards)
         }
+    }
 }
 
 /**
@@ -84,7 +86,6 @@ pred initRound[r : RoundState] {
     r.highestBet = 0
     r.pot = 0
     dealCards
-    // r' = postFlop
     all p : Player | {
         p.bet = 0
         p.chips = 5
