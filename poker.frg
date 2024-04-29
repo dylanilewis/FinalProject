@@ -139,8 +139,9 @@ pred validTransition[pre : RoundState, post : RoundState] {
     pre = postTurn implies post = postRiver
     some disj c1, c2, c3, c4, c5 : Card | {
         (pre = preFlop and post = postFlop) implies {
-        pre.board = none
-        (post.board = c1 + c2 + c3 and #(post.board) = 3)}
+            pre.board = none
+            (post.board = c1 + c2 + c3 and #(post.board) = 3)
+        }
         (pre = postFlop and post = postTurn) implies (post.board = pre.board + c4 and #(post.board) = 4)
         (pre = postTurn and post = postRiver) implies (post.board = pre.board + c5 and #(post.board) = 5)
     }
