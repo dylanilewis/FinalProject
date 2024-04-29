@@ -253,7 +253,7 @@ pred traces {
     all r : RoundState | {
         // these 2 lines are broken
         // always (some r' implies validTransition[r, r'])
-        // winner[r] implies not some r'
+        // alawys (winner[r] implies not some r')
     }
 }
 
