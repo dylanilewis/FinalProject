@@ -1,27 +1,27 @@
 #lang forge/temporal
 
 one sig Players {
-    players: set Player
+    var players: set Player
 }
 
 one sig Board {
-    board: set Card
+    var board: set Card
 }
 
 one sig Deck {
-    deck: set Card
+    var deck: set Card
 }
 
 one sig Pot {
-    pot: set Int
+    var pot: set Int
 }
 
 one sig HighestBet {
-    highestBet: set Int
+    var highestBet: set Int
 }
 
 one sig Turn {
-    turn: one Player
+    var turn: one Player
 }
 
 // This sig represents a card. It contains a suit and a rank.
@@ -47,9 +47,9 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
     hand: one Hand,
-    chips: one Int,
-    bet: one Int,
-    nextPlayer: one Player
+    var chips: one Int,
+    var bet: one Int,
+    var nextPlayer: one Player
 }
 
 // This sig represents a hand. It contains a set of cards and a score.
@@ -92,7 +92,7 @@ pred dealCards {
 */
 pred initRound {
     // line below breaks code
-    // #{r.players} = 2
+    // #{Players.players} = 4
     Board.board = none
     HighestBet.highestBet = 0
     Pot.pot = 0
@@ -147,10 +147,11 @@ pred validTransition {
         validTurn
     }
     some disj c1, c2, c3, c4, c5 : Card | {
-        Board.board = none implies (Board'.board = c1 + c2 + c3 and #(Board'.board) = 3)
-        (#Board.board = 3) implies (Board'.board = Board.board + c4 and #(Board'.board) = 4)
-        (#Board.board = 4) implies (Board'.board = Board.board + c5 and #(Board'.board) = 5)
+        (Board.board = none) implies (Board'.board = c1 + c2 + c3 and #(Board'.board) = 3)
+        (Board.board = c1 + c2 + c3 and #Board.board = 3) implies (Board'.board = Board.board + c4 and #(Board'.board) = 4)
+        (Board.board = c1 + c2 + c3 + c4 and #Board.board = 4) implies (Board'.board = Board.board + c5 and #(Board'.board) = 5)
     }
+    // some disj c1, c2, c3: Card | Board'.board = c1+c2+c3
 }
 
 /**
@@ -252,8 +253,10 @@ pred traces {
     always wellformedCards
     always playerRotation
     initRound
-    not winner implies validTransition
-    eventually winner
+    // not winner implies always {validTransition}
+    // eventually winner
+    // validTransition
+    // eventually winner
 }
 
 /**
