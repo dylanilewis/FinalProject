@@ -1,18 +1,28 @@
 #lang forge/temporal
 
-// This sig represents the state of a round of poker. It contains the players, the deck, the board, the pot, the highest bet, the turn, and the next round state.
-abstract sig RoundState {
-    players: set Player,
-    deck: set Card,
-    board: set Card,
-    pot: one Int,
-    highestBet: one Int,
-    turn: one Player
-    // next: lone RoundState
-}   
+one sig Players {
+    players: set Player
+}
 
-// These sigs represent the different states of a round of poker.
-one sig preFlop, postFlop, postTurn, postRiver extends RoundState {}
+one sig Board {
+    board: set Card
+}
+
+one sig Deck {
+    deck: set Card
+}
+
+one sig Pot {
+    pot: set Int
+}
+
+one sig HighestBet {
+    highestBet: set Int
+}
+
+one sig Turn {
+    turn: one Player
+}
 
 // This sig represents a card. It contains a suit and a rank.
 sig Card {
@@ -80,20 +90,19 @@ pred dealCards {
 * the players are dealt cards, the players have the correct amount of chips, and the turn is set to the first player.
 * Param: r - a round state
 */
-pred initRound[r : RoundState] {
-    r = preFlop
+pred initRound {
     // line below breaks code
     // #{r.players} = 2
-    r.board = none
-    r.highestBet = 0
-    r.pot = 0
+    Board.board = none
+    HighestBet.highestBet = 0
+    Pot.pot = 0
     dealCards
     all p : Player | {
         p.bet = 0
         p.chips = 5
     }
     one p : Player | {
-        p = r.turn
+        Turn.turn = p
     }
 }
 
@@ -102,17 +111,16 @@ pred initRound[r : RoundState] {
 * last remaining player or have the best hand at the end of the round.
 * Param: r - a round state
 */
-pred winner[r : RoundState] {
-    all p : Player | p in postRiver.players <=> evaluateHand[p]
+pred winner {
+    all p : Player | p in Players.players <=> evaluateHand[p]
     some p : Player {
-        ((#(r.players) = 1) and (p in r.players)) or {
+        ((#(Players.players) = 1) and (p in Players.players)) or {
             all disj p1, p2 : Player | {
-                r = postRiver
                 p1.hand.score >= p2.hand.score
-                p1.chips = add[p1.chips, r.pot]
+                p1.chips = add[p1.chips, Pot.pot]
             }
         }
-        p.chips = add[p.chips, r.pot]
+        p.chips = add[p.chips, Pot.pot]
     }
 }
 
@@ -121,9 +129,9 @@ pred winner[r : RoundState] {
 * After a move is made the turn is updated to the next player.
 * Param: r - a round state
 */
-pred validTurn[r : RoundState] {
-    canPlay[r] implies playerAction[r] else playerFolds
-    r.turn = r.turn.nextPlayer
+pred validTurn {
+    canPlay implies playerAction else playerFolds
+    Turn.turn = Turn.turn.nextPlayer
 }
 
 /**
@@ -133,22 +141,15 @@ pred validTurn[r : RoundState] {
 * Param: pre - the current round state
 * Param: post - the next round state
 */
-pred validTransition[pre : RoundState] {
-    not winner[pre]
-    not pre = postRiver
+pred validTransition {
+    not winner
     all p : Player | {
-        validTurn[pre]
+        validTurn
     }
-    pre = preFlop implies pre' = postFlop
-    pre = postFlop implies pre' = postTurn
-    pre = postTurn implies pre' = postRiver
     some disj c1, c2, c3, c4, c5 : Card | {
-        (pre = preFlop and pre' = postFlop) implies {
-            pre.board = none
-            (pre'.board = c1 + c2 + c3 and #(pre'.board) = 3)
-        }
-        (pre = postFlop and pre' = postTurn) implies (pre'.board = pre.board + c4 and #(pre'.board) = 4)
-        (pre = postTurn and pre' = postRiver) implies (pre'.board = pre.board + c5 and #(pre'.board) = 5)
+        Board.board = none implies (Board'.board = c1 + c2 + c3 and #(Board'.board) = 3)
+        (#Board.board = 3) implies (Board'.board = Board.board + c4 and #(Board'.board) = 4)
+        (#Board.board = 4) implies (Board'.board = Board.board + c5 and #(Board'.board) = 5)
     }
 }
 
@@ -158,11 +159,11 @@ pred validTransition[pre : RoundState] {
 * be equal to the highest bet.
 * Param: r - a round state
 */
-pred canPlay[r : RoundState] {
+pred canPlay {
     some p : Player | {
-        r.turn = p 
-        p in r.players
-        p.chips > 0 or p.bet = r.highestBet
+        Turn.turn = p 
+        p in Players.players
+        p.chips > 0 or p.bet = HighestBet.highestBet
     }
 }
 
@@ -171,12 +172,12 @@ pred canPlay[r : RoundState] {
 * removed until the round is over.
 */
 pred playerFolds {
-    some p : Player | some s : RoundState | {
-        s.players = s.players - p
+    some p : Player | {
+        Players.players = Players.players - p
         p.bet = p.bet
         p.chips = p.chips
-        s.pot = s.pot
-        s.highestBet = s.highestBet
+        Pot.pot = Pot.pot
+        HighestBet.highestBet = HighestBet.highestBet
     }
 }
 
@@ -185,11 +186,11 @@ pred playerFolds {
 * the players bet remains the same.
 */
 pred playerChecks {
-    some p : Player | some s : RoundState | {(p.bet = s.highestBet) {
+    some p : Player | {(p.bet = HighestBet.highestBet) {
         p.bet = p.bet
         p.chips = p.chips
-        s.pot = s.pot
-        s.highestBet = s.highestBet
+        Pot.pot = Pot.pot
+        HighestBet.highestBet = HighestBet.highestBet
     }}
 }
 
@@ -199,11 +200,11 @@ pred playerChecks {
 * to the highest bet. The players chips are updated and the pot is updated.
 */
 pred playerCalls {
-    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[s.highestBet, p.chips] >= 0) {
-        p.bet = s.highestBet
-        p.chips = add[subtract[p.chips, s.highestBet], p.bet]
-        s.pot = subtract[add[s.pot, s.highestBet], p.bet]
-        s.highestBet = s.highestBet
+    some p : Player | {(p.chips > 0) and (subtract[HighestBet.highestBet, p.chips] >= 0) {
+        p.bet = HighestBet.highestBet
+        p.chips = add[subtract[p.chips, HighestBet.highestBet], p.bet]
+        Pot.pot = subtract[add[Pot.pot, HighestBet.highestBet], p.bet]
+        HighestBet.highestBet = HighestBet.highestBet
     }}
 }
 
@@ -212,11 +213,11 @@ pred playerCalls {
 * greater than the highest bet. The players chips are updated, the pot is updated, and the highest bet is updated.
 */
 pred playerRaises {
-    some p : Player | some s : RoundState | some i : Int | {(p.chips > 0) and (i > s.highestBet) and (i <= p.chips) {
+    some p : Player | some i : Int | {(p.chips > 0) and (i > HighestBet.highestBet) and (i <= p.chips) {
         p.bet = add[p.bet, i]
-        s.pot = add[s.pot, i]
+        Pot.pot = add[Pot.pot, i]
         p.chips = subtract[p.chips, i]
-        s.highestBet = i
+        HighestBet.highestBet = i
     }}
 }
 
@@ -225,10 +226,10 @@ pred playerRaises {
 * to their remaining chips. The players remaining chips are set to 0 and the pot is updated.
 */
 pred playerAllIns {
-    some p : Player | some s : RoundState | {(p.chips > 0) {
+    some p : Player | {(p.chips > 0) {
         p.bet = add[p.bet, p.chips]
-        s.pot = add[s.pot, p.chips]
-        p.bet > s.highestBet implies s.highestBet = p.bet
+        Pot.pot = add[Pot.pot, p.chips]
+        p.bet > HighestBet.highestBet implies HighestBet.highestBet = p.bet
         p.chips = 0
     }}
 }
@@ -237,9 +238,9 @@ pred playerAllIns {
 * This predicate checks if the player has a valid action to take. Calling 4 of the above player action predicates. 
 * Param: r - a round state
 */
-pred playerAction[r : RoundState] {
+pred playerAction {
     playerChecks or playerCalls or playerRaises or playerAllIns
-    r.players = r.players
+    Players.players = Players.players
 }
 
 /**
@@ -250,12 +251,9 @@ pred playerAction[r : RoundState] {
 pred traces {
     always wellformedCards
     always playerRotation
-    initRound[preFlop]
-    eventually winner[postRiver]
-    all r : RoundState | {
-        (r != postRiver and not winner[r]) implies validTransition[r]
-        // winner[r] implies not some r'
-    }
+    initRound
+    not winner implies validTransition
+    eventually winner
 }
 
 /**
@@ -263,24 +261,24 @@ pred traces {
 */
 pred wellformedCards {
     uniqueCards
-    all c : Card | all r : RoundState | {
-        some p : Player | c in p.hand or c in r.board or c in r.deck
-        c in r.deck implies {
-            c not in r.board
+    all c : Card | {
+        some p : Player | c in p.hand or c in Board.board or c in Deck.deck
+        c in Deck.deck implies {
+            c not in Board.board
             all p : Player | {
                 c not in p.hand
             }
         }
-        c in r.board implies {
-            c not in r.deck
+        c in Board.board implies {
+            c not in Deck.deck
             all p : Player | {
                 c not in p.hand
             }
         }
         some disj p1, p2 : Player | some i : Int {
             c in p1.hand implies {
-                c not in r.deck
-                c not in r.board
+                c not in Deck.deck
+                c not in Board.board
                 c not in p2.hand
             }
         }
@@ -301,8 +299,8 @@ pred playerRotation {
 * Param: p - a player
 */
 pred hasPair[p : Player] {
-    some r : RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+    some rank1 : Rank | {
+        p.hand = Board.board + p.hand
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2
     }
 }
@@ -312,8 +310,8 @@ pred hasPair[p : Player] {
 * Param: p - a player
 */
 pred hasTwoPair[p : Player] {
-    some r : RoundState | some disj rank1, rank2 : Rank | {
-        p.hand = r.board + p.hand
+    some disj rank1, rank2 : Rank | {
+        p.hand = Board.board + p.hand
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2 and #{r : Rank | r in p.hand.cards.rank and r = rank2} = 2
     }
 }
@@ -331,8 +329,8 @@ pred hasFullHouse[p : Player] {
 * Param: p - a player
 */
 pred hasStraight[p : Player] {
-    some r : RoundState | some r1, r2, r3, r4, r5 : Rank | {
-        p.hand = r.board + p.hand
+    some r1, r2, r3, r4, r5 : Rank | {
+        p.hand = Board.board + p.hand
         r1 in p.hand.cards.rank and r2.value = add[r1.value,1]
         r2 in p.hand.cards.rank and r3.value = add[r2.value,1]
         r3 in p.hand.cards.rank and r4.value = add[r3.value,1]
@@ -346,9 +344,9 @@ pred hasStraight[p : Player] {
 * Param: p - a player
 */
 pred hasFlush[p : Player] {
-    some r : RoundState | some suit : Suit | {
-        p.hand = r.board + p.hand
-        // #{s : Suit | s in p.hand.cards.suit and s = suit} >= 5
+    some suit1 : Suit | {
+        p.hand = Board.board + p.hand
+        #{s : Suit | s in p.hand.cards.suit and s = suit1} > 4
     }
 }
 
@@ -357,9 +355,9 @@ pred hasFlush[p : Player] {
 * Param: p - a player
 */
 pred hasRoyalFlush[p : Player] {
-    some r : RoundState | some i1, i2, i3, i4, i5 : Int | {
+    some i1, i2, i3, i4, i5 : Int | {
         hasStraightFlush[p]
-        p.hand = r.board + p.hand
+        p.hand = Board.board + p.hand
         Ace in p.hand.cards.rank
         King in p.hand.cards.rank
         Queen in p.hand.cards.rank
@@ -373,8 +371,8 @@ pred hasRoyalFlush[p : Player] {
 * Param: p - a player
 */
 pred hasFourOfaKind[p : Player] {
-    some r: RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+    some rank1 : Rank | {
+        p.hand = Board.board + p.hand
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 4
     }
 }
@@ -384,8 +382,8 @@ pred hasFourOfaKind[p : Player] {
 * Param: p - a player
 */
 pred hasThreeofaKind[p : Player] {
-    some r: RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+    some rank1 : Rank | {
+        p.hand = Board.board + p.hand
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 3
     }
 }
