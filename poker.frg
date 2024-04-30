@@ -62,7 +62,7 @@ pred uniqueCards {
 */
 pred dealCards {
     all p : Player | {
-        some c1,c2 : Card | {
+        some c1, c2 : Card | {
             p.hand.cards = c1 + c2 implies {c1 != c2}
         }
         #(p.hand.cards) = 2
@@ -82,6 +82,8 @@ pred dealCards {
 */
 pred initRound[r : RoundState] {
     r = preFlop
+    // line below breaks code
+    // #{r.players} = 2
     r.board = none
     r.highestBet = 0
     r.pot = 0
@@ -101,6 +103,7 @@ pred initRound[r : RoundState] {
 * Param: r - a round state
 */
 pred winner[r : RoundState] {
+    all p : Player | p in postRiver.players <=> evaluateHand[p]
     some p : Player {
         ((#(r.players) = 1) and (p in r.players)) or {
             all disj p1, p2 : Player | {
@@ -120,7 +123,7 @@ pred winner[r : RoundState] {
 */
 pred validTurn[r : RoundState] {
     canPlay[r] implies playerAction[r] else playerFolds
-    r.turn' = r.turn.nextPlayer
+    r.turn = r.turn.nextPlayer
 }
 
 /**
@@ -236,6 +239,7 @@ pred playerAllIns {
 */
 pred playerAction[r : RoundState] {
     playerChecks or playerCalls or playerRaises or playerAllIns
+    r.players = r.players
 }
 
 /**
@@ -250,7 +254,6 @@ pred traces {
     eventually winner[postRiver]
     all r : RoundState | {
         (r != postRiver and not winner[r]) implies validTransition[r]
-        // all p : Player | p in postRiver.players <=> evaluateHand[p]
         // winner[r] implies not some r'
     }
 }
