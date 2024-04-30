@@ -156,7 +156,7 @@ pred validTransition[pre : RoundState] {
 * Param: r - a round state
 */
 pred canPlay[r : RoundState] {
-    some p: Player | {
+    some p : Player | {
         r.turn = p 
         p in r.players
         p.chips > 0 or p.bet = r.highestBet
@@ -168,8 +168,12 @@ pred canPlay[r : RoundState] {
 * removed until the round is over.
 */
 pred playerFolds {
-    some p : Player | some r : RoundState | {
-        r.players = r.players - p
+    some p : Player | some s : RoundState | {
+        s.players = s.players - p
+        p.bet = p.bet
+        p.chips = p.chips
+        s.pot = s.pot
+        s.highestBet = s.highestBet
     }
 }
 
@@ -180,22 +184,23 @@ pred playerFolds {
 pred playerChecks {
     some p : Player | some s : RoundState | {(p.bet = s.highestBet) {
         p.bet = p.bet
+        p.chips = p.chips
         s.pot = s.pot
         s.highestBet = s.highestBet
-        p.chips = p.chips
     }}
 }
 
 /**
-* TODO: FIGURE OUT IF P.BET IS BET FOR THAT ROUND OR THE WHOLE GAME
+* TODO: DECIDE WHETHER P.BET IS BET FOR THAT ROUND OR THE WHOLE GAME
 * This predicate implements the logic of a player calling. The player must have more than 0 chips, and their bet is set
 * to the highest bet. The players chips are updated and the pot is updated.
 */
 pred playerCalls {
-    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[s.highestBet, p,chips] >= 0) {
+    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[s.highestBet, p.chips] >= 0) {
         p.bet = s.highestBet
         p.chips = add[subtract[p.chips, s.highestBet], p.bet]
         s.pot = subtract[add[s.pot, s.highestBet], p.bet]
+        s.highestBet = s.highestBet
     }}
 }
 
