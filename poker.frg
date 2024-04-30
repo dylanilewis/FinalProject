@@ -346,9 +346,9 @@ pred hasStraight[p : Player] {
 * Param: p - a player
 */
 pred hasFlush[p : Player] {
-    some r : RoundState | some suit : Suit | {
+    some r : RoundState | some suit1 : Suit | {
         p.hand = r.board + p.hand
-        // #{s : Suit | s in p.hand.cards.suit and s = suit} >= 5
+        #{s : Suit | s in p.hand.cards.suit and s = suit1} > 4
     }
 }
 
