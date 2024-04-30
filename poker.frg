@@ -124,45 +124,29 @@ pred validTurn[r : RoundState] {
 }
 
 /**
+* TODO: RESET HIGHEST BET AFTER ROUNDS
 * This predicate checks that a transition is valid. All players must have made a valid move and then the
 * round state is updated to the next round state depending on the pre round state.
 * Param: pre - the current round state
 * Param: post - the next round state
 */
-pred validTransition[pre : RoundState, post : RoundState] {
+pred validTransition[pre : RoundState] {
+    not winner[pre]
+    not pre = postRiver
     all p : Player | {
         validTurn[pre]
     }
-    pre' = post
-    pre = preFlop implies post = postFlop
-    pre = postFlop implies post = postTurn
-    pre = postTurn implies post = postRiver
+    pre = preFlop implies pre' = postFlop
+    pre = postFlop implies pre' = postTurn
+    pre = postTurn implies pre' = postRiver
     some disj c1, c2, c3, c4, c5 : Card | {
-        (pre = preFlop and post = postFlop) implies {
+        (pre = preFlop and pre' = postFlop) implies {
             pre.board = none
-            (post.board = c1 + c2 + c3 and #(post.board) = 3)
+            (pre'.board = c1 + c2 + c3 and #(pre'.board) = 3)
         }
-        (pre = postFlop and post = postTurn) implies (post.board = pre.board + c4 and #(post.board) = 4)
-        (pre = postTurn and post = postRiver) implies (post.board = pre.board + c5 and #(post.board) = 5)
+        (pre = postFlop and pre' = postTurn) implies (pre'.board = pre.board + c4 and #(pre'.board) = 4)
+        (pre = postTurn and pre' = postRiver) implies (pre'.board = pre.board + c5 and #(pre'.board) = 5)
     }
-    // pre = preFlop implies {
-    //     pre.next = postFlop
-    //     post = postFlop
-    //     #{c : Card | c in pre.board} = 0
-    //     #{c : Card | c in post.board} = 3
-    // }
-    // pre = postFlop implies {
-    //     pre.next = postTurn
-    //     post = postTurn
-    //     #{c : Card | c in pre.board} = 3
-    //     #{c : Card | c in post.board} = 4
-    // }
-    // pre = postTurn implies {
-    //     pre.next = postRiver
-    //     post = postRiver
-    //     #{c : Card | c in pre.board} = 4
-    //     #{c : Card | c in post.board} = 5
-    // }
 }
 
 /**
@@ -196,15 +180,19 @@ pred playerFolds {
 pred playerChecks {
     some p : Player | some s : RoundState | {(p.bet = s.highestBet) {
         p.bet = p.bet
+        s.pot = s.pot
+        s.highestBet = s.highestBet
+        p.chips = p.chips
     }}
 }
 
 /**
+* TODO: FIGURE OUT IF P.BET IS BET FOR THAT ROUND OR THE WHOLE GAME
 * This predicate implements the logic of a player calling. The player must have more than 0 chips, and their bet is set
 * to the highest bet. The players chips are updated and the pot is updated.
 */
 pred playerCalls {
-    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[s.highestBet, p.bet] <= p.chips) {
+    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[s.highestBet, p,chips] >= 0) {
         p.bet = s.highestBet
         p.chips = add[subtract[p.chips, s.highestBet], p.bet]
         s.pot = subtract[add[s.pot, s.highestBet], p.bet]
@@ -217,9 +205,9 @@ pred playerCalls {
 */
 pred playerRaises {
     some p : Player | some s : RoundState | some i : Int | {(p.chips > 0) and (i > s.highestBet) and (i <= p.chips) {
-        p.bet = i
-        p.chips = subtract[p.chips, i]
+        p.bet = add[p.bet, i]
         s.pot = add[s.pot, i]
+        p.chips = subtract[p.chips, i]
         s.highestBet = i
     }}
 }
@@ -231,8 +219,9 @@ pred playerRaises {
 pred playerAllIns {
     some p : Player | some s : RoundState | {(p.chips > 0) {
         p.bet = add[p.bet, p.chips]
+        s.pot = add[s.pot, p.chips]
+        p.bet > s.highestBet implies s.highestBet = p.bet
         p.chips = 0
-        s.pot = add[s.pot, p.bet]
     }}
 }
 
@@ -250,12 +239,14 @@ pred playerAction[r : RoundState] {
 * transition to the next state. Finally, it checks that once there is a winner the game stops and there are no new states. 
 */
 pred traces {
+    always wellformedCards
+    always playerRotation
     initRound[preFlop]
     eventually winner[postRiver]
     all r : RoundState | {
-        // these 2 lines are broken
-        // always (some r' implies validTransition[r, r'])
-        // alawys (winner[r] implies not some r')
+        (r != postRiver and not winner[r]) implies validTransition[r]
+        // all p : Player | p in postRiver.players <=> evaluateHand[p]
+        // winner[r] implies not some r'
     }
 }
 
@@ -265,6 +256,7 @@ pred traces {
 pred wellformedCards {
     uniqueCards
     all c : Card | all r : RoundState | {
+        some p : Player | c in p.hand or c in r.board or c in r.deck
         c in r.deck implies {
             c not in r.board
             all p : Player | {
@@ -465,8 +457,5 @@ inst optimize_rank {
 }
 
 run {
-    always wellformedCards
-    always playerRotation
-    all p : Player | p in postRiver.players <=> evaluateHand[p]
     traces
 } for exactly 12 Card, 2 Player, 4 Int for optimize_rank
