@@ -138,9 +138,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
     not winner[pre]
     not pre = postRiver
     pre.next = post
-    all p : Player | {
-        validTurn[pre]
-    }
     some disj c1, c2, c3, c4, c5 : Card | {
         pre = preFlop implies {
             post = postFlop
@@ -157,6 +154,13 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #(post.board) = 5
         }
+    }
+    #(pre.players) >= #(post.players)
+    #(pre.board) > #(post.board)
+    #(pre.deck) < #(post.deck)
+    all p : Player | {
+        p not in pre.players implies p not in post.players
+        p in pre.players implies validTurn[pre]
     }
 }
 
