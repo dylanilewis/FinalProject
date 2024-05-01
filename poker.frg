@@ -62,14 +62,15 @@ pred uniqueCards {
 */
 pred dealCards {
     all p : Player | {
-        some c1, c2 : Card | {
-            p.hand.cards = c1 + c2 implies {c1 != c2}
+        some disj c1, c2 : Card | {
+            p.hand.cards = c1 + c2
         }
         #(p.hand.cards) = 2
     }
     //all players have two different cards. Cards cannot be repeated among players
     all disj p1, p2 : Player | {
-        some c : Card | {
+        p1.hand != p2.hand
+        all c : Card | {
             (c in p1.hand.cards => c not in p2.hand.cards) and (c in p2.hand.cards => c not in p1.hand.cards)
         }
     }
@@ -82,6 +83,8 @@ pred dealCards {
 */
 pred initRound[r : RoundState] {
     r = preFlop
+    // hopefully can remove this line later down the line
+    #(r.players) = 4
     r.board = none
     r.highestBet = 0
     r.pot = 0
@@ -262,8 +265,6 @@ pred traces {
         winner[postRiver]
     }
     all r : RoundState | {
-        wellformedCards
-        playerRotation
         some r.next implies validTransition[r, r.next]
         winner[r] implies not some r.next
     }
@@ -476,5 +477,7 @@ inst optimize_rank {
 }
 
 run {
+    wellformedCards
+    playerRotation
     traces
-} for exactly 12 Card, 3 Player, 4 Int for optimize_rank
+} for exactly 20 Card, 4 Player, 4 Int for optimize_rank
