@@ -34,20 +34,6 @@ abstract sig Rank {
 // These sigs represent the different ranks of a deck of cards.
 one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace extends Rank {}
 
-// This sig represents a player. It contains a hand, chips, a bet, and the next player.
-sig Player {
-    hand: one Hand,
-    chips: one Int,
-    bet: one Int,
-    nextPlayer: one Player
-}
-
-// This sig represents a hand. It contains a set of cards and a score.
-sig Hand {
-    cards: set Card,
-    score: one Int
-}
-
 /**
 * This predicate checks that all cards are unique.
 */
@@ -109,11 +95,9 @@ pred winner[r : RoundState] {
             all p : Player | p in postRiver.players <=> evaluateHand[p]
             all disj p1, p2 : Player | {
                 r = postRiver
-                p1.hand.score >= p2.hand.score
-                p1.chips = add[p1.chips, r.pot]
+                p1.hand.score > p2.hand.score
             }
         }
-        p.chips = add[p.chips, r.pot]
     }
 }
 
@@ -128,7 +112,6 @@ pred validTurn[r : RoundState] {
 }
 
 /**
-* TODO: RESET HIGHEST BET AFTER ROUNDS
 * This predicate checks that a transition is valid. All players must have made a valid move and then the
 * round state is updated to the next round state depending on the pre round state.
 * Param: pre - the current round state
@@ -142,17 +125,23 @@ pred validTransition[pre : RoundState, post : RoundState] {
         pre = preFlop implies {
             post = postFlop
             post.board = c1 + c2 + c3
-            #(post.board) = 3
+            #{post.board} = 3
+            post.deck = pre.deck - c1 - c2 - c3
+            // post.highestBet = 0
         }
         pre = postFlop implies {
             post = postTurn
             post.board = pre.board + c4
-            #(post.board) = 4
+            #{post.board} = 4
+            post.deck = pre.deck - c4
+            // post.highestBet = 0
         }
         pre = postTurn implies {
             post = postRiver
             post.board = pre.board + c5
-            #(post.board) = 5
+            #{post.board} = 5
+            post.deck = pre.deck - c5
+            // post.highestBet = 0
         }
     }
     #(pre.players) >= #(post.players)
@@ -160,7 +149,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
     #(pre.deck) < #(post.deck)
     all p : Player | {
         p not in pre.players implies p not in post.players
-        p in pre.players implies validTurn[pre]
+        p in pre.players <=> validTurn[pre]
     }
 }
 
@@ -269,8 +258,8 @@ pred traces {
         winner[postRiver]
     }
     all r : RoundState | {
+        (winner[r] or r = postTurn) implies not some r.next
         some r.next implies validTransition[r, r.next]
-        winner[r] implies not some r.next
     }
 }
 
@@ -278,28 +267,31 @@ pred traces {
 * This predicate checks the deck, board and all player's hands are formed correctly.
 */
 pred wellformedCards {
-    uniqueCards
     all c : Card | all r : RoundState | {
-        some p : Player | c in p.hand or c in r.board or c in r.deck
-        c in r.deck implies {
-            c not in r.board
-            all p : Player | {
-                c not in p.hand
-            }
+        some p : Player {
+            (c in r.deck and c not in r.board and c not in p.hand) 
+            or (c not in r.deck and c in r.board and c not in p.hand) 
+            or (c not in r.deck and c in r.board and c in p.hand)
         }
-        c in r.board implies {
-            c not in r.deck
-            all p : Player | {
-                c not in p.hand
-            }
-        }
-        some disj p1, p2 : Player | some i : Int {
-            c in p1.hand implies {
-                c not in r.deck
-                c not in r.board
-                c not in p2.hand
-            }
-        }
+        // c in r.deck implies {
+        //     c not in r.board
+        //     all p : Player | {
+        //         c not in p.hand
+        //     }
+        // }
+        // c in r.board implies {
+        //     c not in r.deck
+        //     all p : Player | {
+        //         c not in p.hand
+        //     }
+        // }
+        // all disj p1, p2 : Player {
+        //     c in p1.hand implies {
+        //         c not in r.deck
+        //         c not in r.board
+        //         c not in p2.hand
+        //     }
+        // }
     }
 }
 
@@ -481,7 +473,8 @@ inst optimize_rank {
 }
 
 run {
+    uniqueCards
     wellformedCards
     playerRotation
     traces
-} for exactly 20 Card, 4 Player, 4 Int for optimize_rank
+} for exactly 15 Card, 4 Player, 4 Int for optimize_rank
