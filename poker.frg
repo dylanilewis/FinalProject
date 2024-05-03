@@ -1,7 +1,8 @@
 #lang forge 
 
 // This sig represents the state of a round of poker. It contains the players, the deck, the board, the pot, the highest bet, the turn, and the next round state.
-abstract sig RoundState {
+sig RoundState {
+    bstate: one BoardState,
     players: set Player,
     deck: set Card,
     board: set Card,
@@ -11,8 +12,10 @@ abstract sig RoundState {
     next: lone RoundState
 }   
 
+abstract sig BoardState {}
+
 // These sigs represent the different states of a round of poker.
-one sig preFlop, postFlop, postTurn, postRiver extends RoundState {}
+one sig preFlop, postFlop, postTurn, postRiver extends BoardState {}
 
 // This sig represents a card. It contains a suit and a rank.
 sig Card {
@@ -81,24 +84,26 @@ pred dealCards {
 * the players are dealt cards, the players have the correct amount of chips, and the turn is set to the first player.
 * Param: r - a round state
 */
-pred initRound[r : RoundState] {
-    r = preFlop
-    #(r.players) = 4
-    r.board = none
-    r.highestBet = 0
-    r.pot = 0
+pred initRound {
     dealCards
-    all c : Card | {
-        some p : Player | {
-            c not in p.hand <=> c in r.deck
+    some r : RoundState | {
+        r.bstate = preFlop
+        #(r.players) = 4
+        r.board = none
+        r.highestBet = 0
+        r.pot = 0
+        all c : Card | {
+            some p : Player | {
+                c not in p.hand <=> c in r.deck
+            }
         }
-    }
-    all p : Player | {
-        p.bet = 0
-        p.chips = 5
-    }
-    one p : Player | {
-        p = r.turn
+        all p : Player | {
+            p.bet = 0
+            p.chips = 5
+        }
+        one p : Player | {
+            p = r.turn
+        }
     }
 }
 
@@ -107,8 +112,10 @@ pred initRound[r : RoundState] {
 * last remaining player or have the best hand at the end of the round.
 * Param: r - a round state
 */
-pred winner[r : RoundState] {
-    #{r.players} = 1
+pred winner {
+    some r : RoundState | {
+        #{r.players} = 1
+    }
     // some p : Player {
     //     ((#(r.players) = 1) and (p in r.players)) or {
     //         all p : Player | p in postRiver.players <=> evaluateHand[p]
@@ -137,13 +144,13 @@ pred validTurn[r : RoundState] {
 * Param: post - the next round state
 */
 pred validTransition[pre : RoundState, post : RoundState] {
-    all p : Player | {
-        p not in pre.players implies p not in post.players
-        // p in pre.players <=> validTurn[pre]
-    }
-    pre = preFlop => #{post.board} = 3
-    pre = postFlop => #{post.board} = 4
-    pre = postTurn => #{post.board} = 5
+    // all p : Player | {
+    //     p not in pre.players implies p not in post.players
+    //     // p in pre.players <=> validTurn[pre]
+    // }
+    // pre = preFlop => #{post.board} = 3
+    // pre = postFlop => #{post.board} = 4
+    // pre = postTurn => #{post.board} = 5
     // not winner[pre]
     // not pre = postRiver
     // pre.next = post
@@ -173,6 +180,42 @@ pred validTransition[pre : RoundState, post : RoundState] {
     // #(pre.players) >= #(post.players)
     // #(pre.board) > #(post.board)
     // #(pre.deck) < #(post.deck)
+    // not winner[pre]
+    not pre.bstate = postRiver
+    pre.next = post
+    some disj c1, c2, c3, c4, c5 : Card | {
+        pre.bstate = preFlop implies {
+            c1 + c2 + c3 in pre.deck
+            post.bstate = postFlop
+            post.board = c1 + c2 + c3
+            #{post.board} = 3
+            post.deck = pre.deck - c1 - c2 - c3
+            // post.highestBet = 0
+        }
+        pre.bstate = postFlop implies {
+            c4 in pre.deck
+            post.bstate = postTurn
+            post.board = pre.board + c4
+            #{post.board} = 4
+            post.deck = pre.deck - c4
+            // post.highestBet = 0
+        }
+        pre.bstate = postTurn implies {
+            c5 in pre.deck
+            post.bstate = postRiver
+            post.board = pre.board + c5
+            #{post.board} = 5
+            post.deck = pre.deck - c5
+            // post.highestBet = 0
+        }
+    }
+    #(pre.players) >= #(post.players)
+    #(pre.board) > #(post.board)
+    #(pre.deck) < #(post.deck)
+    all p : Player | {
+        p not in pre.players implies p not in post.players
+        p in pre.players <=> validTurn[pre]
+    }
 }
 
 /**
@@ -274,12 +317,14 @@ pred playerAction[r : RoundState] {
 * transition to the next state. Finally, it checks that once there is a winner the game stops and there are no new states. 
 */
 pred traces {
-    one preFlop, postRiver: RoundState | {
-        initRound[preFlop]
-        winner[postRiver]
+    one b : BoardState | {
+        initRound
+    }
+    one b : BoardState | {
+        winner
     }
     all r : RoundState | {
-        r = postTurn implies not some r.next else validTransition[r, r.next]
+        some r.next implies validTransition[r, r.next]
     }
 }
 
