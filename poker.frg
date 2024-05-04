@@ -64,7 +64,7 @@ pred uniqueCards {
 * This predicate ensures that all players are dealt 2 cards.
 */
 pred dealCards {
-    all p : Player {
+    all p : Player | {
         some disj c1, c2 : Card | {
             p.hand.cards = c1 + c2
         }
@@ -85,7 +85,7 @@ pred dealCards {
 * Param: r - a round state
 */
 pred initRound[r : RoundState] {
-    all p : Player | {p in r.players}
+    all p : Player | {p in r.players} and #{r.players} = 4
     r.bstate = preFlop
     r.board = none
     r.highestBet = 0
