@@ -64,11 +64,11 @@ pred uniqueCards {
 * This predicate ensures that all players are dealt 2 cards.
 */
 pred dealCards {
-    all p : Player | {
+    all p : Player {
         some disj c1, c2 : Card | {
             p.hand.cards = c1 + c2
         }
-        #(p.hand.cards) = 2
+        #{p.hand.cards} = 2
     }
     //all players have two different cards. Cards cannot be repeated among players
     all disj p1, p2 : Player | {
@@ -85,17 +85,17 @@ pred dealCards {
 * Param: r - a round state
 */
 pred initRound[r : RoundState] {
+    all p : Player | {p in r.players}
     r.bstate = preFlop
-    #(r.players) = 4
     r.board = none
     r.highestBet = 0
     r.pot = 0
     dealCards
-    all c : Card | {
-        some p : Player | {
-            c not in p.hand <=> c in r.deck
-        }
-    }
+    // all c : Card | {
+    //     all p : Player | {
+    //         c not in p.hand <=> c in r.deck
+    //     }
+    // }
     all p : Player | {
         p.bet = 0
         p.chips = 5
@@ -310,9 +310,9 @@ pred playerAction[r : RoundState] {
 * transition to the next state. Finally, it checks that once there is a winner the game stops and there are no new states. 
 */
 pred traces {
-    one preFlop, postRiver: RoundState | {
+    one preFlop : RoundState | {
         initRound[preFlop]
-        winner[postRiver]
+        // winner[postRiver]
     }
     all r : RoundState | {
         r.bstate != postTurn implies validTransition[r, r.next]
