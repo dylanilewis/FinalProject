@@ -77,6 +77,11 @@ pred dealCards {
             (c in p1.hand.cards => c not in p2.hand.cards) and (c in p2.hand.cards => c not in p1.hand.cards)
         }
     }
+    all r : RoundState | {
+        all p : Player | {
+            p.hand.cards = p.hand.cards
+        }
+    }
 }
 
 /**
@@ -91,11 +96,11 @@ pred initRound[r : RoundState] {
     r.highestBet = 0
     r.pot = 0
     dealCards
-    // all c : Card | {
-    //     all p : Player | {
-    //         c not in p.hand <=> c in r.deck
-    //     }
-    // }
+    all c : Card | {
+        all p : Player | {
+            c not in p.hand <=> c in r.deck
+        }
+    }
     all p : Player | {
         p.bet = 0
         p.chips = 5
@@ -323,28 +328,30 @@ pred traces {
 * This predicate checks the deck, board and all player's hands are formed correctly.
 */
 pred wellformedCards {
-    all c : Card | all r : RoundState | {
-        // some p : Player {
-        //     (c in r.deck and c not in r.board and c not in p.hand) 
-        //     or (c not in r.deck and c in r.board and c not in p.hand) 
-        //     or (c not in r.deck and c in r.board and c in p.hand)
-        // }
-        c in r.deck <=> {
+    all c : Card | {
+        all p : Player {
+            all r : RoundState | c in p.hand => {
+                c not in r.deck
+                c not in r.board
+            }
+        }
+        all r : RoundState | c in r.deck => {
             c not in r.board
             all p : Player | {
                 c not in p.hand
             }
         }
-        c in r.board <=> {
+        all r : RoundState | c in r.board => {
             c not in r.deck
             all p : Player | {
                 c not in p.hand
             }
         }
-        all p : Player {
-            c in p.hand <=> {
-                c not in r.deck
-                c not in r.board
+        all r : RoundState | {
+            some p : Player | {
+                (c in r.deck and c not in r.board and c not in p.hand) 
+                or (c not in r.deck and c in r.board and c not in p.hand) 
+                or (c not in r.deck and c in r.board and c in p.hand)
             }
         }
     }

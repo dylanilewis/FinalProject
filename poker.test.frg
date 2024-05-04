@@ -55,11 +55,11 @@ test suite for dealCards {
     test expect {
         dealCardsTest: {dealCards} is sat
         dealCards1: {dealCardsTest1 and dealCards} is sat
-        // dealCards2: {dealCardsTest2 and dealCards} is theorem
+        dealCards2: {dealCardsTest2 and dealCards} is sat
         dealCards3: {dealCardsTest3 and dealCards} is unsat
-        // dealCards4: {dealCardsTest4 and dealCards} is theorem
+        // dealCards4: {dealCardsTest4 and dealCards} is sat
         dealCards5: {dealCardsTest5 and dealCards} is unsat
-        // dealCards6: {dealCardsTest6 and dealCards} is theorem
+        dealCards6: {dealCardsTest6 and dealCards} is sat
         dealCards7: {dealCardsTest7 and dealCards} is unsat
     }
 }
