@@ -90,15 +90,15 @@ pred dealCards {
 * Param: r - a round state
 */
 pred initRound[r : RoundState] {
-    all p : Player | {p in r.players} and #{r.players} = 4
+    all p : Player | p in r.players and #{r.players} = 4 and p.hand.score = -5
     r.bstate = preFlop
     r.board = none
     r.highestBet = 0
     r.pot = 0
     dealCards
     all c : Card | {
-        all p : Player | {
-            c not in p.hand <=> c in r.deck
+        some p : Player | {
+            c not in p.hand => c in r.deck
         }
     }
     all p : Player | {

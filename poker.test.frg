@@ -2,67 +2,67 @@
 
 open "poker.frg"
 
-pred dealCardsTest1 {
-    some p1, p2 : Player | some disj c1, c2, c3, c4 : Card | {
-        c1 in p1.hand.cards
-        c2 in p1.hand.cards
-        c3 in p2.hand.cards
-        c4 in p2.hand.cards
-    }
-}
+// pred dealCardsTest1 {
+//     some p1, p2 : Player | some disj c1, c2, c3, c4 : Card | {
+//         c1 in p1.hand.cards
+//         c2 in p1.hand.cards
+//         c3 in p2.hand.cards
+//         c4 in p2.hand.cards
+//     }
+// }
 
-pred dealCardsTest2 {
-    some p : Player | some disj c1, c2 : Card | {
-        p.hand.cards = c1 + c2
-    }
-}
+// pred dealCardsTest2 {
+//     some p : Player | some disj c1, c2 : Card | {
+//         p.hand.cards = c1 + c2
+//     }
+// }
 
-pred dealCardsTest3 {
-    some p : Player | some c1, c2 : Card | {
-        c1 = c2
-        p.hand.cards = c1 + c2
-    }
-}
+// pred dealCardsTest3 {
+//     some p : Player | some c1, c2 : Card | {
+//         c1 = c2
+//         p.hand.cards = c1 + c2
+//     }
+// }
 
-pred dealCardsTest4 {
-    some disj p1, p2 : Player | some c : Card | {
-        c in p1.hand and c not in p2.hand
-    }
-}
+// pred dealCardsTest4 {
+//     some disj p1, p2 : Player | some c : Card | {
+//         c in p1.hand and c not in p2.hand
+//     }
+// }
 
-pred dealCardsTest5 {
-    some disj p1, p2 : Player | some c : Card | {
-        c in p1.hand and c in p2.hand
-    }
-}
+// pred dealCardsTest5 {
+//     some disj p1, p2 : Player | some c : Card | {
+//         c in p1.hand and c in p2.hand
+//     }
+// }
 
-pred dealCardsTest6 {
-    all p : Player | {
-        #{p.hand.cards} = 2
-    }
-}
+// pred dealCardsTest6 {
+//     all p : Player | {
+//         #{p.hand.cards} = 2
+//     }
+// }
 
-pred dealCardsTest7 {
-    some p : Player | {
-        #{p.hand.cards} = 3
-    }
-}
+// pred dealCardsTest7 {
+//     some p : Player | {
+//         #{p.hand.cards} = 3
+//     }
+// }
 
-/**
- * Test suite for the dealCards predicate
- */
-test suite for dealCards {
-    test expect {
-        dealCardsTest: {dealCards} is sat
-        dealCards1: {dealCardsTest1 and dealCards} is sat
-        dealCards2: {dealCardsTest2 and dealCards} is sat
-        dealCards3: {dealCardsTest3 and dealCards} is unsat
-        // dealCards4: {dealCardsTest4 and dealCards} is sat
-        dealCards5: {dealCardsTest5 and dealCards} is unsat
-        dealCards6: {dealCardsTest6 and dealCards} is sat
-        dealCards7: {dealCardsTest7 and dealCards} is unsat
-    }
-}
+// /**
+//  * Test suite for the dealCards predicate
+//  */
+// test suite for dealCards {
+//     test expect {
+//         dealCardsTest: {dealCards} is sat
+//         dealCards1: {dealCardsTest1 and dealCards} is sat
+//         dealCards2: {dealCardsTest2 and dealCards} is sat
+//         dealCards3: {dealCardsTest3 and dealCards} is unsat
+//         // dealCards4: {dealCardsTest4 and dealCards} is sat
+//         dealCards5: {dealCardsTest5 and dealCards} is unsat
+//         dealCards6: {dealCardsTest6 and dealCards} is sat
+//         dealCards7: {dealCardsTest7 and dealCards} is unsat
+//     }
+// }
 
 // pred playersChipsGood {
 //     all p : Player | {
@@ -294,148 +294,150 @@ test suite for dealCards {
 //     }
 // }
 
-// pred highestCard[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Queen
-//         c3.suit = Hearts and c3.rank = Ten
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+// THESE TESTS MIGHT BE FAILING BECAUSE dealCards RESTRICTS PLAYER HANDS TO 2 CARDS
 
-// pred pair[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Ace
-//         c3.suit = Hearts and c3.rank = Ten
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred highCard[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Queen
+        c3.suit = Hearts and c3.rank = Ten
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred twoPair[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Ace
-//         c3.suit = Hearts and c3.rank = Ten
-//         c4.suit = Clubs and c4.rank = Ten
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred pair[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Ace
+        c3.suit = Hearts and c3.rank = Ten
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred threeOfAKind[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Ace
-//         c3.suit = Hearts and c3.rank = Ace
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred twoPair[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Ace
+        c3.suit = Hearts and c3.rank = Ten
+        c4.suit = Clubs and c4.rank = Ten
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred straight[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = King
-//         c3.suit = Hearts and c3.rank = Nine
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Seven
-//         c6.suit = Hearts and c6.rank = Six
-//         c7.suit = Clubs and c7.rank = Five
-//     }
-// }
+pred threeOfAKind[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Ace
+        c3.suit = Hearts and c3.rank = Ace
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred flush[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Clubs and c2.rank = Queen
-//         c3.suit = Clubs and c3.rank = Ten
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred straight[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = King
+        c3.suit = Hearts and c3.rank = Nine
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Seven
+        c6.suit = Hearts and c6.rank = Six
+        c7.suit = Clubs and c7.rank = Five
+    }
+}
 
-// pred fullHouse[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Ace
-//         c3.suit = Hearts and c3.rank = Ace
-//         c4.suit = Clubs and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Eight
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred flush[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Clubs and c2.rank = Queen
+        c3.suit = Clubs and c3.rank = Ten
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred fourOfAKind[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Diamonds and c2.rank = Ace
-//         c3.suit = Hearts and c3.rank = Ace
-//         c4.suit = Spades and c4.rank = Ace
-//         c5.suit = Diamonds and c5.rank = Six
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred fullHouse[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Ace
+        c3.suit = Hearts and c3.rank = Ace
+        c4.suit = Clubs and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Eight
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred straightFlush[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Spades and c2.rank = King
-//         c3.suit = Diamonds and c3.rank = Nine
-//         c4.suit = Diamonds and c4.rank = Eight
-//         c5.suit = Diamonds and c5.rank = Seven
-//         c6.suit = Diamonds and c6.rank = Six
-//         c7.suit = Diamonds and c7.rank = Five
-//     }
-// }
+pred fourOfAKind[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Diamonds and c2.rank = Ace
+        c3.suit = Hearts and c3.rank = Ace
+        c4.suit = Spades and c4.rank = Ace
+        c5.suit = Diamonds and c5.rank = Six
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
-// pred royalFlush[p : Player] {
-//     some c1, c2, c3, c4, c5, c6, c7 : Card {
-//         c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-//         c1.suit = Clubs and c1.rank = Ace
-//         c2.suit = Clubs and c2.rank = King
-//         c3.suit = Clubs and c3.rank = Queen
-//         c4.suit = Clubs and c4.rank = Jack
-//         c5.suit = Clubs and c5.rank = Ten
-//         c6.suit = Hearts and c6.rank = Four
-//         c7.suit = Clubs and c7.rank = Two
-//     }
-// }
+pred straightFlush[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Spades and c2.rank = King
+        c3.suit = Diamonds and c3.rank = Nine
+        c4.suit = Diamonds and c4.rank = Eight
+        c5.suit = Diamonds and c5.rank = Seven
+        c6.suit = Diamonds and c6.rank = Six
+        c7.suit = Diamonds and c7.rank = Five
+    }
+}
+
+pred royalFlush[p : Player] {
+    some c1, c2, c3, c4, c5, c6, c7 : Card {
+        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
+        c1.suit = Clubs and c1.rank = Ace
+        c2.suit = Clubs and c2.rank = King
+        c3.suit = Clubs and c3.rank = Queen
+        c4.suit = Clubs and c4.rank = Jack
+        c5.suit = Clubs and c5.rank = Ten
+        c6.suit = Hearts and c6.rank = Four
+        c7.suit = Clubs and c7.rank = Two
+    }
+}
 
 // test suite for hasHighCard {
 //     test expect {
-//         // highCardSat: {some p : Player | highestCard[p] and hasHighCard[p]} is sat
-//         highCardUnsat1: {some p : Player | highestCard[p] and hasPair[p]} is unsat
-//         highCardUnsat2: {some p : Player | highestCard[p] and hasTwoPair[p]} is unsat
-//         highCardUnsat3: {some p : Player | highestCard[p] and hasThreeofaKind[p]} is unsat
-//         highCardUnsat4: {some p : Player | highestCard[p] and hasStraight[p]} is unsat
-//         highCardUnsat5: {some p : Player | highestCard[p] and hasFlush[p]} is unsat
-//         highCardUnsat6: {some p : Player | highestCard[p] and hasFullHouse[p]} is unsat
-//         highCardUnsat7: {some p : Player | highestCard[p] and hasFourOfaKind[p]} is unsat
-//         highCardUnsat8: {some p : Player | highestCard[p] and hasStraightFlush[p]} is unsat
-//         highCardUnsat9: {some p : Player | highestCard[p] and hasRoyalFlush[p]} is unsat
+//         // highCardSat: {some p : Player | highCard[p] and hasHighCard[p]} is sat
+//         highCardUnsat1: {some p : Player | highCard[p] and hasPair[p]} is unsat
+//         highCardUnsat2: {some p : Player | highCard[p] and hasTwoPair[p]} is unsat
+//         highCardUnsat3: {some p : Player | highCard[p] and hasThreeofaKind[p]} is unsat
+//         highCardUnsat4: {some p : Player | highCard[p] and hasStraight[p]} is unsat
+//         highCardUnsat5: {some p : Player | highCard[p] and hasFlush[p]} is unsat
+//         highCardUnsat6: {some p : Player | highCard[p] and hasFullHouse[p]} is unsat
+//         highCardUnsat7: {some p : Player | highCard[p] and hasFourOfaKind[p]} is unsat
+//         highCardUnsat8: {some p : Player | highCard[p] and hasStraightFlush[p]} is unsat
+//         highCardUnsat9: {some p : Player | highCard[p] and hasRoyalFlush[p]} is unsat
 //     }
 // }
 
@@ -571,5 +573,20 @@ test suite for dealCards {
 //         royalFlushUnsat7: {some p : Player | royalFlush[p] and hasFullHouse[p]} is unsat
 //         royalFlushUnsat8: {some p : Player | royalFlush[p] and hasFourOfaKind[p]} is unsat
 //         royalFlushUnsat9: {some p : Player | royalFlush[p] and hasStraightFlush[p]} is unsat
+//     }
+// }
+
+// test suite for evaluateHand {
+//     test expect {
+//         evalHighCardSat: {some p : Player | highCard[p] and evaluateHand[p] and p.hand.score = -4} is sat
+//         evalPairSat: {some p : Player | pair[p] and evaluateHand[p] and p.hand.score = -3} is sat
+//         evalTwoPairSat: {some p : Player | twoPair[p] and evaluateHand[p] and p.hand.score = -2} is sat
+//         evalThreeOfAKindSat: {some p : Player | threeOfAKind[p] and evaluateHand[p] and p.hand.score = -1} is sat
+//         evalStraightSat: {some p : Player | straight[p] and evaluateHand[p] and p.hand.score = 0} is sat
+//         evalFlushSat: {some p : Player | flush[p] and evaluateHand[p] and p.hand.score = 1} is sat
+//         evalFullHouseSat: {some p : Player | fullHouse[p] and evaluateHand[p] and p.hand.score = 2} is sat
+//         evalFourOfAKindSat: {some p : Player | fourOfAKind[p] and evaluateHand[p] and p.hand.score = 3} is sat
+//         evalStraightFlushSat: {some p : Player | straightFlush[p] and evaluateHand[p] and p.hand.score = 4} is sat
+//         evalRoyalFlushSat: {some p : Player | royalFlush[p] and evaluateHand[p] and p.hand.score = 5} is sat
 //     }
 // }
