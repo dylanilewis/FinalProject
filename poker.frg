@@ -320,7 +320,7 @@ pred traces {
         // winner[postRiver]
     }
     all r : RoundState | {
-        r.bstate != postTurn implies validTransition[r, r.next]
+        r.bstate != postRiver implies validTransition[r, r.next]
     }
 }
 
