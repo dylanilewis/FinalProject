@@ -100,18 +100,34 @@ open "poker.frg"
 //     s.pot = 0
 // }
 
+pred cardsinDeckandPlayersHands[s: RoundState] {
+    some c : Card, p: Player | {
+        c in s.deck and c in p.hand.cards
+    }
+}
+
+pred noCardsDeckAndHand[s: RoundState] {
+    all c : Card, p: Player | {
+        c in s.deck and not c in p.hand.cards
+    }
+
+}
+
 // /**
 //  * Test suite for the initRound predicate
 //  */
-// test suite for initRound {
-//     test expect {
+test suite for initRound {
+    test expect {
+        initRoundTest: {some r : RoundState | initRound[r] and cardsinDeckandPlayersHands[r]} is unsat
+        initRoundAndDealCardsTest: {some r : RoundState | initRound[r] and noCardsDeckAndHand[r]} is sat
 //         // initRoundTest: {some r : RoundState | initRound[r]} is sat
 //         // initRoundAndDealCardsTest: {some r : RoundState | initRound[r] and dealCards} is sat
+
 //         // t11: {some r : RoundState | playersChipsGood and goodRoundState[r] and initRound[r]} is sat
 //         t22: {some r : RoundState | playersChipsBad and goodRoundState[r] and initRound[r]} is unsat
 //         t33: {some r : RoundState | playersChipsGood and badRoundState[r] and initRound[r]} is unsat
-//     }
-// }
+    }
+}
 
 // pred winnerRoundState1Player[r: RoundState] {
 //     one p1 :Player | p1 in r.players and #(r.players) = 1
