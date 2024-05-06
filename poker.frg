@@ -331,22 +331,23 @@ pred wellformedCards {
     all c : Card | {
             all r : RoundState | {
                 c in r.deck => {
-                    c not in r.board
                     all p : Player | {
                         c not in p.hand.cards
-                    }
-                }
-                c in r.board => {
-                    c not in r.deck
-                    all p : Player | {
-                        c not in p.hand.cards
+                        c not in r.board
                     }
                 }
                 all p : Player | {
+                    c in r.board => {
+                        c not in p.hand.cards
+                        c not in r.deck
+                    }
+                }
+                some p : Player | {
                     c in p.hand.cards => {
                         c not in r.deck
                         c not in r.board
                     }
+                    c in p.hand.cards or c in r.deck or c in r.board
                 }
         }
     }
