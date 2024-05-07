@@ -91,7 +91,7 @@ pred dealCards {
 * Param: r - a round state
 */
 pred initRound[r : RoundState] {
-    all p : Player | p in r.players and #{r.players} = 4 and p.hand.score = -5
+    all p : Player | p in r.players and #{r.players} = 4 and p.hand.score = 0
     r.bstate = preFlop
     r.board = none
     r.highestBet = 0
@@ -167,7 +167,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
-            all p : Player | p in post.players <=> evaluateHand[p]
+            all p : Player | p in post.players <=> evaluateHand[p, post]
             all disj p1, p2 : post.players | {
                 p1.hand.score > p2.hand.score implies post.winner = p1
             } 
@@ -332,9 +332,8 @@ pred playerRotation {
 * This predicate checks if the player's best hand is a pair.
 * Param: p - a player
 */
-pred hasPair[p : Player] {
-    some r : RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+pred hasPair[p : Player, r : RoundState]{
+    some rank1 : Rank | {
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2
     }
 }
@@ -343,9 +342,8 @@ pred hasPair[p : Player] {
 * This predicate checks if the player's best hand is a two pair.
 * Param: p - a player
 */
-pred hasTwoPair[p : Player] {
-    some r : RoundState | some disj rank1, rank2 : Rank | {
-        p.hand = r.board + p.hand
+pred hasTwoPair[p : Player, r : RoundState] {
+    some disj rank1, rank2 : Rank | {
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 2 and #{r : Rank | r in p.hand.cards.rank and r = rank2} = 2
     }
 }
@@ -354,22 +352,21 @@ pred hasTwoPair[p : Player] {
 * This predicate checks if the player's best hand is a full house.
 * Param: p - a player
 */
-pred hasFullHouse[p : Player] {
-    hasThreeofaKind[p] and hasPair[p]
+pred hasFullHouse[p : Player, r : RoundState] {
+    hasThreeofaKind[p, r] and hasPair[p, r]
 }
 
 /**
 * This predicate checks if the player's best hand is a straight.
 * Param: p - a player
 */
-pred hasStraight[p : Player] {
-    some r : RoundState | some r1, r2, r3, r4, r5 : Rank | {
-        p.hand = r.board + p.hand
-        r1 in p.hand.cards.rank and r2.value = add[r1.value,1]
+pred hasStraight[p : Player, r : RoundState] {
+    some r1, r2, r3, r4, r5 : Rank | {
+        {r1 in p.hand.cards.rank and r2.value = add[r1.value,1]
         r2 in p.hand.cards.rank and r3.value = add[r2.value,1]
         r3 in p.hand.cards.rank and r4.value = add[r3.value,1]
         r4 in p.hand.cards.rank and r5.value = add[r4.value,1]
-        r5 in p.hand.cards.rank
+        r5 in p.hand.cards.rank}
     }
 }
 
@@ -377,9 +374,8 @@ pred hasStraight[p : Player] {
 * This predicate checks if the player's best hand is a flush.
 * Param: p - a player
 */
-pred hasFlush[p : Player] {
-    some r : RoundState | some suit1 : Suit | {
-        p.hand = r.board + p.hand
+pred hasFlush[p : Player, r : RoundState] {
+    some suit1 : Suit | {
         #{s : Suit | s in p.hand.cards.suit and s = suit1} > 4
     }
 }
@@ -388,15 +384,14 @@ pred hasFlush[p : Player] {
 * This predicate checks if the player's best hand is a royal flush.
 * Param: p - a player
 */
-pred hasRoyalFlush[p : Player] {
-    some r : RoundState | some i1, i2, i3, i4, i5 : Int | {
-        hasStraightFlush[p]
-        p.hand = r.board + p.hand
+pred hasRoyalFlush[p : Player, r : RoundState] {
+    some i1, i2, i3, i4, i5 : Int | {
+        {hasStraightFlush[p, r]
         Ace in p.hand.cards.rank
         King in p.hand.cards.rank
         Queen in p.hand.cards.rank
         Jack in p.hand.cards.rank
-        Ten in p.hand.cards.rank
+        Ten in p.hand.cards.rank}
     }
 }
 
@@ -404,9 +399,8 @@ pred hasRoyalFlush[p : Player] {
 * This predicate checks if the player's best hand is a four of a kind.
 * Param: p - a player
 */
-pred hasFourOfaKind[p : Player] {
-    some r: RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+pred hasFourOfaKind[p : Player, r : RoundState] {
+    some rank1 : Rank | {
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 4
     }
 }
@@ -415,9 +409,8 @@ pred hasFourOfaKind[p : Player] {
 * This predicate checks if the player's best hand is a three of a kind.
 * Param: p - a player
 */
-pred hasThreeofaKind[p : Player] {
-    some r: RoundState | some rank1 : Rank | {
-        p.hand = r.board + p.hand
+pred hasThreeofaKind[p : Player, r : RoundState] {
+    some rank1 : Rank | {
         #{r : Rank | r in p.hand.cards.rank and r = rank1} = 3
     }
 }
@@ -426,41 +419,42 @@ pred hasThreeofaKind[p : Player] {
 * This predicate checks if the player's best hand is a straight flush.
 * Param: p - a player
 */
-pred hasStraightFlush[p : Player] {
-    hasStraight[p] and hasFlush[p]
+pred hasStraightFlush[p : Player, r : RoundState] {
+    hasStraight[p, r] and hasFlush[p, r]
 }
 
 /**
 * This predicate checks if the player's best hand is a high card.
 * Param: p - a player
 */
-pred hasHighCard[p : Player] {
-    not hasRoyalFlush[p]
-    not hasStraightFlush[p]
-    not hasFourOfaKind[p]
-    not hasFullHouse[p]
-    not hasFlush[p]
-    not hasStraight[p]
-    not hasThreeofaKind[p]
-    not hasTwoPair[p]
-    not hasPair[p]
-}
+// pred hasHighCard[p : Player, r : RoundState] {
+//     {not hasRoyalFlush[p, r]
+//     not hasStraightFlush[p, r]
+//     not hasFourOfaKind[p, r]
+//     not hasFullHouse[p, r]
+//     not hasFlush[p, r]
+//     not hasStraight[p, r]
+//     not hasThreeofaKind[p, r]
+//     not hasTwoPair[p, r]
+//     not hasPair[p, r]}
+// }
 
 /**
 * This predicate checks the hand a player has and sets the players hand to the type of hand they have.
 * Param: p - a player
 */
-pred evaluateHand[p : Player] {
-    hasRoyalFlush[p] implies p.hand.score = 5
-    hasStraightFlush[p] implies p.hand.score = 4
-    hasFourOfaKind[p] implies p.hand.score = 3
-    hasFullHouse[p] implies p.hand.score = 2
-    hasFlush[p] implies p.hand.score = 1
-    hasStraight[p] implies p.hand.score = 0
-    hasThreeofaKind[p] implies p.hand.score = -1
-    hasTwoPair[p] implies p.hand.score = -2
-    hasPair[p] implies p.hand.score = -3
-    hasHighCard[p] implies p.hand.score = -4
+pred evaluateHand[p : Player, r : RoundState] {
+    p.hand = r.board + p.hand
+    {hasRoyalFlush[p, r] => p.hand.score = 5 
+    else hasStraightFlush[p, r] => p.hand.score = 4 
+    else hasFourOfaKind[p, r] => p.hand.score = 3 
+    else hasFullHouse[p, r] => p.hand.score = 2
+    else hasFlush[p, r] => p.hand.score = 1
+    else hasStraight[p, r] => p.hand.score = 0
+    else hasThreeofaKind[p, r] => p.hand.score = -1
+    else hasTwoPair[p, r] => p.hand.score = -2
+    else hasPair[p, r] => p.hand.score = -3
+    else p.hand.score = -4}
 }
 
 /**
@@ -501,4 +495,4 @@ run {
     wellformedCards
     playerRotation
     traces
-} for exactly 15 Card, 4 Player, 4 Int for optimize_rank
+} for exactly 13 Card, 4 Player, 4 Int, 4 RoundState for optimize_rank
