@@ -24,11 +24,11 @@ open "poker.frg"
 //     }
 // }
 
-// pred dealCardsTest4 {
-//     some disj p1, p2 : Player | some c : Card | {
-//         c in p1.hand and c not in p2.hand
-//     }
-// }
+pred dealCardsTest4 {
+    some disj p1, p2 : Player | some c : Card | {
+        c in p1.hand implies c not in p2.hand
+    }
+}
 
 // pred dealCardsTest5 {
 //     some disj p1, p2 : Player | some c : Card | {

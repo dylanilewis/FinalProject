@@ -9,7 +9,8 @@ sig RoundState {
     pot: one Int,
     highestBet: one Int,
     turn: one Player,
-    next: lone RoundState
+    next: lone RoundState,
+    winner: lone Player
 }
 
 abstract sig BoardState{}
@@ -95,6 +96,7 @@ pred initRound[r : RoundState] {
     r.board = none
     r.highestBet = 0
     r.pot = 0
+    r.winner = none
     dealCards
     all p : Player | {
         p.bet = 0
@@ -110,17 +112,17 @@ pred initRound[r : RoundState] {
 * last remaining player or have the best hand at the end of the round.
 * Param: r - a round state
 */
-pred winner {
-    some r : RoundState | {
-        #{r.players} = 1 or {
-            r.bstate = postRiver
-            all p : Player | p in r.players <=> evaluateHand[p]
-            all disj p1, p2 : Player | {
-                p1.hand.score > p2.hand.score
-            } 
-        }
-    }
-}
+// pred winner {
+//     some r : RoundState | {
+//         #{r.players} = 1 or {
+//             r.bstate = postRiver
+//             all p : Player | p in r.players <=> evaluateHand[p]
+//             all disj p1, p2 : Player | {
+//                 p1.hand.score > p2.hand.score
+//             } 
+//         }
+//     }
+// }
 
 /**
 * This predicate checks that a turn is valid. If a player can play, they must play. If they cannot play, they must fold.
@@ -147,6 +149,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = c1 + c2 + c3
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
+            post.winner = none
             // post.highestBet = 0
         }
         pre.bstate = postFlop implies {
@@ -155,6 +158,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c4
             #{post.board} = 4
             post.deck = pre.deck - c4
+            post.winner = none
             // post.highestBet = 0
         }
         pre.bstate = postTurn implies {
@@ -163,12 +167,16 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
+            all p : Player | p in post.players <=> evaluateHand[p]
+            all disj p1, p2 : post.players | {
+                p1.hand.score > p2.hand.score implies post.winner = p1
+            } 
             // post.highestBet = 0
         }
     }
     all p : Player | {
         p not in pre.players implies p not in post.players
-        p in pre.players <=> validTurn[pre]
+        // p in pre.players <=> validTurn[pre]
     }
 }
 
@@ -274,12 +282,11 @@ pred traces {
     one preFlop : RoundState | {
         initRound[preFlop]
     }
-    // one r : RoundState | {
-    //     winner
-    // }
     all r : RoundState | {
-        (r.bstate != postTurn) implies validTransition[r, r.next]
-        // winner implies no r.next
+        some p : Player | {
+            (#{r.players} = 1 and p in r.players) => r.winner = p
+        }
+        (r.winner != none or #{r.players} = 0 or r.bstate != postRiver) => validTransition[r, r.next]
     }
 }
 
@@ -494,4 +501,4 @@ run {
     wellformedCards
     playerRotation
     traces
-} for exactly 13 Card, 4 Player, 4 Int for optimize_rank
+} for exactly 15 Card, 4 Player, 4 Int for optimize_rank
