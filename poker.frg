@@ -6,8 +6,8 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-    pot: one Int,
-    highestBet: one Int,
+    pot: set Int,
+    highestBet: set Int,
     turn: one Player,
     next: lone RoundState,
     winner: lone Player
@@ -42,14 +42,14 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 sig Player {
     hand: one Hand,
     chips: one Int,
-    bet: one Int,
+    bet: set Int,
     nextPlayer: one Player
 }
 
 // This sig represents a hand. It contains a set of cards and a score.
 sig Hand {
     cards: set Card,
-    score: one Int
+    score: set Int
 }
 
 /**
@@ -91,15 +91,20 @@ pred dealCards {
 * Param: r - a round state
 */
 pred initRound[r : RoundState] {
-    all p : Player | p in r.players and #{r.players} = 4 and p.hand.score = 0
+    all p : Player | {
+        p in r.players
+        #{r.players} = 4
+        evaluateHand[p, r]
+        #{p.hand.score} = 1
+    }
     r.bstate = preFlop
     r.board = none
-    r.highestBet = 0
-    r.pot = 0
+    0 in r.highestBet
+    0 in r.pot 
     r.winner = none
     dealCards
     all p : Player | {
-        p.bet = 0
+        0 in p.bet
         p.chips = 5
     }
     one p : Player | {
@@ -150,6 +155,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
+            all p : Player | {
+                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 2
+                // p in pre.players <=> #{p.hand.score} = 1
+            }
             // post.highestBet = 0
         }
         pre.bstate = postFlop implies {
@@ -159,6 +168,9 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 4
             post.deck = pre.deck - c4
             post.winner = none
+            all p : Player | {
+                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 3
+            }
             // post.highestBet = 0
         }
         pre.bstate = postTurn implies {
@@ -167,9 +179,11 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
-            all p : Player | p in post.players <=> evaluateHand[p, post]
+            all p : Player | {
+                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 4
+            }
             all disj p1, p2 : post.players | {
-                p1.hand.score > p2.hand.score implies post.winner = p1
+                max[p1.hand.score] > max[p2.hand.score] implies post.winner = p1
             } 
             // post.highestBet = 0
         }
@@ -242,7 +256,7 @@ pred playerCalls {
 * greater than the highest bet. The players chips are updated, the pot is updated, and the highest bet is updated.
 */
 pred playerRaises {
-    some p : Player | some s : RoundState | some i : Int | {(p.chips > 0) and (i > s.highestBet) and (i <= p.chips) {
+    some p : Player | some s : RoundState | some i : Int | {(i >= 0) and (p.chips > 0) and (i > s.highestBet) and (i <= p.chips) => {
         s.players = s.players
         s.pot = add[s.pot, i]
         s.highestBet = i
@@ -445,16 +459,16 @@ pred hasStraightFlush[p : Player, r : RoundState] {
 */
 pred evaluateHand[p : Player, r : RoundState] {
     p.hand = r.board + p.hand
-    {hasRoyalFlush[p, r] => p.hand.score = 5 
-    else hasStraightFlush[p, r] => p.hand.score = 4 
-    else hasFourOfaKind[p, r] => p.hand.score = 3 
-    else hasFullHouse[p, r] => p.hand.score = 2
-    else hasFlush[p, r] => p.hand.score = 1
-    else hasStraight[p, r] => p.hand.score = 0
-    else hasThreeofaKind[p, r] => p.hand.score = -1
-    else hasTwoPair[p, r] => p.hand.score = -2
-    else hasPair[p, r] => p.hand.score = -3
-    else p.hand.score = -4}
+    {hasRoyalFlush[p, r] => 5 in p.hand.score
+    else hasStraightFlush[p, r] => 4 in p.hand.score 
+    else hasFourOfaKind[p, r] => 3 in p.hand.score 
+    else hasFullHouse[p, r] => 2 in p.hand.score
+    else hasFlush[p, r] => 1 in p.hand.score
+    else hasStraight[p, r] => 0 in p.hand.score
+    else hasThreeofaKind[p, r] => -1 in p.hand.score
+    else hasTwoPair[p, r] => -2 in p.hand.score
+    else hasPair[p, r] => -3 in p.hand.score
+    else -4 in p.hand.score}
 }
 
 /**
