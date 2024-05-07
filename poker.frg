@@ -7,7 +7,6 @@ sig RoundState {
     deck: set Card,
     board: set Card,
     pot: set Int,
-    highestBet: set Int,
     turn: one Player,
     next: lone RoundState,
     winner: lone Player
@@ -99,7 +98,6 @@ pred initRound[r : RoundState] {
     }
     r.bstate = preFlop
     r.board = none
-    0 in r.highestBet
     0 in r.pot 
     r.winner = none
     dealCards
@@ -111,23 +109,6 @@ pred initRound[r : RoundState] {
         p = r.turn
     }
 }
-
-/**
-* This predicate implements the needed constraints for a winner to be named. A player must either be the 
-* last remaining player or have the best hand at the end of the round.
-* Param: r - a round state
-*/
-// pred winner {
-//     some r : RoundState | {
-//         #{r.players} = 1 or {
-//             r.bstate = postRiver
-//             all p : Player | p in r.players <=> evaluateHand[p]
-//             all disj p1, p2 : Player | {
-//                 p1.hand.score > p2.hand.score
-//             } 
-//         }
-//     }
-// }
 
 /**
 * This predicate checks that a turn is valid. If a player can play, they must play. If they cannot play, they must fold.
@@ -157,9 +138,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.winner = none
             all p : Player | {
                 p in post.players => evaluateHand[p, post] and #{p.hand.score} = 2
-                // p in pre.players <=> #{p.hand.score} = 1
             }
-            // post.highestBet = 0
         }
         pre.bstate = postFlop implies {
             c4 in pre.deck
@@ -171,7 +150,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             all p : Player | {
                 p in post.players => evaluateHand[p, post] and #{p.hand.score} = 3
             }
-            // post.highestBet = 0
         }
         pre.bstate = postTurn implies {
             c5 in pre.deck
@@ -183,14 +161,16 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 p in post.players => evaluateHand[p, post] and #{p.hand.score} = 4
             }
             all disj p1, p2 : post.players | {
-                max[p1.hand.score] > max[p2.hand.score] implies post.winner = p1
+                max[p1.hand.score] > max[p2.hand.score] => post.winner = p1
             } 
-            // post.highestBet = 0
         }
     }
     all p : Player | {
-        p not in pre.players implies p not in post.players
-        // p in pre.players <=> validTurn[pre]
+        p not in pre.players => p not in post.players
+        some i : Int | {i >= 0 and i <= p.chips} => {
+            p in pre.players => (i in p.bet and p in post.players) or (i not in p.bet and p not in post.players)
+        }
+        // p in pre.players => validTurn[pre]
     }
 }
 
@@ -200,11 +180,12 @@ pred validTransition[pre : RoundState, post : RoundState] {
 * be equal to the highest bet.
 * Param: r - a round state
 */
+// or p.bet = r.highestBet
 pred canPlay[r : RoundState] {
     some p : Player | {
         r.turn = p 
         p in r.players
-        p.chips > 0 or p.bet = r.highestBet
+        p.chips > 0
     }
 }
 
@@ -216,7 +197,7 @@ pred playerFolds {
     some p : Player | some s : RoundState | {
         s.players = s.players - p
         s.pot = s.pot
-        s.highestBet = s.highestBet
+        // s.highestBet = s.highestBet
         p.bet = p.bet
         p.chips = p.chips
     }
@@ -226,14 +207,15 @@ pred playerFolds {
 * This predicate implements the logic of a player checking. Their current bet must be equal to the highest bet, and
 * the players bet remains the same.
 */
+// {(p.bet = s.highestBet)
 pred playerChecks {
-    some p : Player | some s : RoundState | {(p.bet = s.highestBet) {
+    some p : Player | some s : RoundState | {
         s.players = s.players
         s.pot = s.pot
-        s.highestBet = s.highestBet
+        // s.highestBet = s.highestBet
         p.bet = p.bet
         p.chips = p.chips
-    }}
+    }
 }
 
 /**
@@ -241,13 +223,14 @@ pred playerChecks {
 * This predicate implements the logic of a player calling. The player must have more than 0 chips, and their bet is set
 * to the highest bet. The players chips are updated and the pot is updated.
 */
+// and (subtract[p.chips, s.highestBet] >= 0)
 pred playerCalls {
-    some p : Player | some s : RoundState | {(p.chips > 0) and (subtract[p.chips, s.highestBet] >= 0) {
+    some p : Player | some s : RoundState | {(p.chips > 0) {
         s.players = s.players
-        s.pot = add[subtract[s.highestBet, p.bet], s.pot]
-        s.highestBet = s.highestBet
-        p.bet = s.highestBet
-        p.chips = subtract[p.chips, subtract[s.highestBet, p.bet]]
+        // s.pot = add[subtract[s.highestBet, p.bet], s.pot]
+        // s.highestBet = s.highestBet
+        // p.bet = s.highestBet
+        // p.chips = subtract[p.chips, subtract[s.highestBet, p.bet]]
     }}
 }
 
@@ -255,11 +238,12 @@ pred playerCalls {
 * This predicate implements the logic of a player raising. The player must have more than 0 chips, and their new bet must be 
 * greater than the highest bet. The players chips are updated, the pot is updated, and the highest bet is updated.
 */
+// and (i > s.highestBet)
 pred playerRaises {
-    some p : Player | some s : RoundState | some i : Int | {(i >= 0) and (p.chips > 0) and (i > s.highestBet) and (i <= p.chips) => {
+    some p : Player | some s : RoundState | some i : Int | {(i >= 0) and (p.chips > 0) and (i <= p.chips) => {
         s.players = s.players
         s.pot = add[s.pot, i]
-        s.highestBet = i
+        // s.highestBet = i
         p.bet = add[p.bet, i]
         p.chips = subtract[p.chips, i]
     }}
@@ -273,7 +257,7 @@ pred playerAllIns {
     some p : Player | some s : RoundState | {(p.chips > 0) {
         s.players = s.players
         s.pot = add[s.pot, p.chips]
-        p.bet > s.highestBet implies s.highestBet = p.bet
+        // p.bet > s.highestBet implies s.highestBet = p.bet
         p.bet = add[p.bet, p.chips]
         p.chips = 0
     }}
