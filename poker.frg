@@ -6,10 +6,11 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-    pot: set Int,
+    // pot: one Int,
     turn: one Player,
     next: lone RoundState,
-    winner: lone Player
+    winner: lone Player,
+    bet: one Int
 }
 
 abstract sig BoardState{}
@@ -40,8 +41,8 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
     hand: one Hand,
-    chips: one Int,
-    bet: set Int,
+    // chips: one Int,
+    // bets: set Int,
     nextPlayer: one Player
 }
 
@@ -98,26 +99,10 @@ pred initRound[r : RoundState] {
     }
     r.bstate = preFlop
     r.board = none
-    0 in r.pot 
     r.winner = none
     dealCards
-    all p : Player | {
-        0 in p.bet
-        p.chips = 5
-    }
-    one p : Player | {
-        p = r.turn
-    }
-}
-
-/**
-* This predicate checks that a turn is valid. If a player can play, they must play. If they cannot play, they must fold.
-* After a move is made the turn is updated to the next player.
-* Param: r - a round state
-*/
-pred validTurn[r : RoundState] {
-    canPlay[r] implies playerAction[r] else playerFolds
-    r.turn = r.turn.nextPlayer
+    r.bet = 0
+    // r.pot = 0
 }
 
 /**
@@ -136,8 +121,16 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
+            #{post.players} > 1
             all p : Player | {
-                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 2
+                p in post.players => {
+                    evaluateHand[p, post]
+                    #{p.hand.score} = 2
+                }
+                some i : Int | (pre.bstate != preFlop) => {
+                    i >= 0 and i <= 5 and pre.bet = i
+                    #{pre.players} = 0 => i = 0
+                }
             }
         }
         pre.bstate = postFlop implies {
@@ -148,7 +141,14 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.deck = pre.deck - c4
             post.winner = none
             all p : Player | {
-                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 3
+                p in post.players => {
+                    evaluateHand[p, post]
+                    #{p.hand.score} = 3
+                }
+                some i : Int | (pre.bstate != preFlop) => {
+                    i >= 0 and i <= 5 and pre.bet = i
+                    #{pre.players} = 0 => i = 0
+                }
             }
         }
         pre.bstate = postTurn implies {
@@ -158,117 +158,31 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 5
             post.deck = pre.deck - c5
             all p : Player | {
-                p in post.players => evaluateHand[p, post] and #{p.hand.score} = 4
+                p in post.players => {
+                    evaluateHand[p, post]
+                    #{p.hand.score} = 4
+                }
+                some i : Int | (pre.bstate != preFlop) => {
+                    i >= 0 and i <= 5 and pre.bet = i
+                    #{pre.players} = 0 => i = 0
+                }
             }
             all disj p1, p2 : post.players | {
                 max[p1.hand.score] > max[p2.hand.score] => post.winner = p1
             } 
         }
     }
-    all p : Player | {
-        p not in pre.players => p not in post.players
-        some i : Int | {i >= 0 and i <= p.chips} => {
-            p in pre.players => (i in p.bet and p in post.players) or (i not in p.bet and p not in post.players)
-        }
-        // p in pre.players => validTurn[pre]
-    }
-}
-
-/**
-* This predicate implements the constraints for a player to be able to play. It must be a players turn, 
-* the player must still be in the game, and a player must either have more than 0 chips or their current bet must
-* be equal to the highest bet.
-* Param: r - a round state
-*/
-// or p.bet = r.highestBet
-pred canPlay[r : RoundState] {
-    some p : Player | {
-        r.turn = p 
-        p in r.players
-        p.chips > 0
-    }
-}
-
-/**
-* This predicate implements the logic of a player folding. The player is removed from the round state and will remain
-* removed until the round is over.
-*/
-pred playerFolds {
-    some p : Player | some s : RoundState | {
-        s.players = s.players - p
-        s.pot = s.pot
-        // s.highestBet = s.highestBet
-        p.bet = p.bet
-        p.chips = p.chips
-    }
-}
-
-/**
-* This predicate implements the logic of a player checking. Their current bet must be equal to the highest bet, and
-* the players bet remains the same.
-*/
-// {(p.bet = s.highestBet)
-pred playerChecks {
-    some p : Player | some s : RoundState | {
-        s.players = s.players
-        s.pot = s.pot
-        // s.highestBet = s.highestBet
-        p.bet = p.bet
-        p.chips = p.chips
-    }
-}
-
-/**
-* TODO: DECIDE WHETHER P.BET IS BET FOR THAT ROUND OR THE WHOLE GAME
-* This predicate implements the logic of a player calling. The player must have more than 0 chips, and their bet is set
-* to the highest bet. The players chips are updated and the pot is updated.
-*/
-// and (subtract[p.chips, s.highestBet] >= 0)
-pred playerCalls {
-    some p : Player | some s : RoundState | {(p.chips > 0) {
-        s.players = s.players
-        // s.pot = add[subtract[s.highestBet, p.bet], s.pot]
-        // s.highestBet = s.highestBet
-        // p.bet = s.highestBet
-        // p.chips = subtract[p.chips, subtract[s.highestBet, p.bet]]
-    }}
-}
-
-/**
-* This predicate implements the logic of a player raising. The player must have more than 0 chips, and their new bet must be 
-* greater than the highest bet. The players chips are updated, the pot is updated, and the highest bet is updated.
-*/
-// and (i > s.highestBet)
-pred playerRaises {
-    some p : Player | some s : RoundState | some i : Int | {(i >= 0) and (p.chips > 0) and (i <= p.chips) => {
-        s.players = s.players
-        s.pot = add[s.pot, i]
-        // s.highestBet = i
-        p.bet = add[p.bet, i]
-        p.chips = subtract[p.chips, i]
-    }}
-}
-
-/**
-* This predicate implements the logic of a player going all in. The player must have more than 0 chips, and their bet is set
-* to their remaining chips. The players remaining chips are set to 0 and the pot is updated.
-*/
-pred playerAllIns {
-    some p : Player | some s : RoundState | {(p.chips > 0) {
-        s.players = s.players
-        s.pot = add[s.pot, p.chips]
-        // p.bet > s.highestBet implies s.highestBet = p.bet
-        p.bet = add[p.bet, p.chips]
-        p.chips = 0
-    }}
-}
-
-/**
-* This predicate checks if the player has a valid action to take. Calling 4 of the above player action predicates. 
-* Param: r - a round state
-*/
-pred playerAction[r : RoundState] {
-    playerChecks or playerCalls or playerRaises or playerAllIns
+    // all p : Player | {
+    //     p not in pre.players => p not in post.players
+    //     p in post.players => p in pre.players
+    //     some i : Int | (pre.bstate != preFlop) => {
+    //         i >= 0 and i <= 5 and pre.bet = i
+    //         #{pre.players} = 0 => i = 0
+    //         // i >= 0 and i <= 3 and pre.bet = i and pre.pot = multiply[i, #{pre.players}]
+    //         // p in post.players => (i in p.bets and p in pre.players)
+    //         // p not in post.players => i not in p.bets
+    //     }
+    // }
 }
 
 /**
@@ -284,7 +198,8 @@ pred traces {
         some p : Player | {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
-        (r.winner != none or #{r.players} = 0 or r.bstate != postRiver) => validTransition[r, r.next]
+        (r.bstate != postRiver) => validTransition[r, r.next]
+        // (r.winner != none or #{r.players} = 0 or r.bstate != postRiver) => validTransition[r, r.next]
     }
 }
 
@@ -493,4 +408,4 @@ run {
     wellformedCards
     playerRotation
     traces
-} for exactly 13 Card, 4 Player, 4 Int, 4 RoundState for optimize_rank
+} for exactly 13 Card, 4 Player, 4 Int for optimize_rank
