@@ -113,6 +113,10 @@ pred initRound[r : RoundState] {
 */
 pred validTransition[pre : RoundState, post : RoundState] {
     pre.next = post
+    all p: Player | {
+        p not in pre.players => p not in post.players
+    }
+    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
@@ -123,7 +127,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.winner = none
             #{post.players} > 1
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
@@ -142,7 +145,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.deck = pre.deck - c4
             post.winner = none
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
@@ -160,7 +162,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 5
             post.deck = pre.deck - c5
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
