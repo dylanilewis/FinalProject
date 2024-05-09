@@ -175,10 +175,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             } 
         }
     }
-    all p : Player | {
-        p not in pre.players => p not in post.players
-        p in post.players <=> p in pre.players
-    }
     //     some i : Int | (pre.bstate != preFlop) => {
     //         i >= 0 and i <= 5 and pre.bet = i
     //         #{pre.players} = 0 => i = 0
