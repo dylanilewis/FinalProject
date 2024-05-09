@@ -6,7 +6,6 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-    // pot: one Int,
     turn: one Player,
     next: lone RoundState,
     winner: lone Player,
@@ -41,8 +40,6 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
     hand: one Hand,
-    // chips: one Int,
-    // bets: set Int,
     nextPlayer: one Player
 }
 
@@ -102,7 +99,6 @@ pred initRound[r : RoundState] {
     r.winner = none
     dealCards
     r.bet = 0
-    // r.pot = 0
 }
 
 /**
@@ -125,7 +121,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
             #{pre.players} > 1 => #{post.players} >= 1
-            // #{post.players} > 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -191,7 +186,7 @@ pred traces {
         initRound[preFlop]
     }
     all r : RoundState | {
-        some p : Player | {
+        all p : Player | {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
         (r.bstate != postRiver) => validTransition[r, r.next]
