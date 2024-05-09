@@ -116,7 +116,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
     all p: Player | {
         p not in pre.players => p not in post.players
     }
-    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
@@ -168,17 +167,13 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
-                    #{pre.players} = 0 => i = 0
+                    #{pre.players} = 0 => i = 0h
                 }
             }
             all disj p1, p2 : post.players | {
                 p1.hand.score[post] > p2.hand.score[post] => post.winner = p1
             } 
         }
-    }
-    all p : Player | {
-        p not in pre.players => p not in post.players
-        // p in post.players <=> p in pre.players
     }
 }
 
