@@ -340,17 +340,17 @@ pred hasStraightFlush[hand: set Card] {
 * This predicate checks if the player's best hand is a high card.
 * Param: p - a player
 */
-// pred hasHighCard[p : Player, r : RoundState] {
-//     {not hasRoyalFlush[p, r]
-//     not hasStraightFlush[p, r]
-//     not hasFourOfaKind[p, r]
-//     not hasFullHouse[p, r]
-//     not hasFlush[p, r]
-//     not hasStraight[p, r]
-//     not hasThreeofaKind[p, r]
-//     not hasTwoPair[p, r]
-//     not hasPair[p, r]}
-// }
+pred hasHighCard[hand: set Card] {
+    {not hasRoyalFlush[hand]
+    not hasStraightFlush[hand]
+    not hasFourOfaKind[hand]
+    not hasFullHouse[hand]
+    not hasFlush[hand]
+    not hasStraight[hand]
+    not hasThreeofaKind[hand]
+    not hasTwoPair[hand]
+    not hasPair[hand]}
+}
 
 /**
 * This predicate checks the hand a player has and sets the players hand to the type of hand they have.
@@ -367,6 +367,7 @@ pred evaluateHand[p : Player, r : RoundState] {
         hasThreeofaKind[bAndH] => p.hand.score[r] = -1
         hasTwoPair[bAndH] => p.hand.score[r] = -2
         hasPair[bAndH] => p.hand.score[r] = -3
+        hasHighCard[bAndH] => p.hand.score[r] = -4
     }
 
 }
