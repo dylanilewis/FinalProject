@@ -372,32 +372,32 @@ pred evaluateHand[p : Player, r : RoundState] {
 * This instance is used to optimize the conversion between the rank and value of a card.
 */
 inst optimize_rank {
-    Rank = `Two + `Three + `Four + `Five + `Six + `Seven + `Eight + `Nine + `Ten + `Jack + `Queen + `King + `Ace
-    Two = `Two
+    Rank = `Two0 + `Three0 + `Four0 + `Five0 + `Six0 + `Seven0 + `Eight0 + `Nine0 + `Ten0 + `Jack0 + `Queen0 + `King0 + `Ace0
+    Two = `Two0
     `Two.value = (-8)
-    Three = `Three
+    Three = `Three0
     `Three.value = (-7)
-    Four = `Four
+    Four = `Four0
     `Four.value = (-6)
-    Five = `Five
+    Five = `Five0
     `Five.value = (-5)
-    Six = `Six
+    Six = `Six0
     `Six.value = (-4)
-    Seven = `Seven
+    Seven = `Seven0
     `Seven.value = (-3)
-    Eight = `Eight
+    Eight = `Eight0
     `Eight.value = (-2)
-    Nine = `Nine
+    Nine = `Nine0
     `Nine.value = (-1)
-    Ten = `Ten
+    Ten = `Ten0
     `Ten.value = (0)
-    Jack = `Jack
+    Jack = `Jack0
     `Jack.value = (1)
-    Queen = `Queen
+    Queen = `Queen0
     `Queen.value = (2)
-    King = `King
+    King = `King0
     `King.value = (3)
-    Ace = `Ace
+    Ace = `Ace0
     `Ace.value = (4)
 }
 
@@ -407,3 +407,4 @@ run {
     playerRotation
     traces
 } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
+
