@@ -124,7 +124,8 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
-            #{post.players} > 1
+            #{pre.players} > 1 => #{post.players} >= 1
+            // #{post.players} > 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -143,6 +144,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 4
             post.deck = pre.deck - c4
             post.winner = none
+            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -160,6 +162,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
+            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -167,10 +170,11 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
-                    #{pre.players} = 0 => i = 0h
+                    #{pre.players} = 0 => i = 0
+                    #{post.players} = 0 => post.bet = 0
                 }
             }
-            all disj p1, p2 : post.players | {
+            all disj p1, p2 : Player | (p1 in post.players and p2 in post.players) => {
                 p1.hand.score[post] > p2.hand.score[post] => post.winner = p1
             } 
         }
@@ -359,6 +363,7 @@ pred evaluateHand[p : Player, r : RoundState] {
         hasThreeofaKind[bAndH] => p.hand.score[r] = -1
         hasTwoPair[bAndH] => p.hand.score[r] = -2
         hasPair[bAndH] => p.hand.score[r] = -3
+        p.hand.score[r] = -4
     }
 
 }
@@ -401,4 +406,5 @@ run {
     wellformedCards
     playerRotation
     traces
+    some r : RoundState | r.winner != none
 } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
