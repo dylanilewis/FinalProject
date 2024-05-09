@@ -113,6 +113,10 @@ pred initRound[r : RoundState] {
 */
 pred validTransition[pre : RoundState, post : RoundState] {
     pre.next = post
+    all p: Player | {
+        p not in pre.players => p not in post.players
+    }
+    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
