@@ -123,11 +123,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.winner = none
             #{post.players} > 1
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
-                }
+                } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
                     #{pre.players} = 0 => i = 0
@@ -142,11 +141,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.deck = pre.deck - c4
             post.winner = none
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
-                }
+                } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
                     #{pre.players} = 0 => i = 0
@@ -160,11 +158,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 5
             post.deck = pre.deck - c5
             all p : Player | {
-                p not in pre.players => p not in post.players
                 p in post.players => {
                     evaluateHand[p, post]
                     some p.hand.score[post]
-                }
+                } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
                     #{pre.players} = 0 => i = 0
@@ -175,14 +172,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             } 
         }
     }
-    //     some i : Int | (pre.bstate != preFlop) => {
-    //         i >= 0 and i <= 5 and pre.bet = i
-    //         #{pre.players} = 0 => i = 0
-    //         // i >= 0 and i <= 3 and pre.bet = i and pre.pot = multiply[i, #{pre.players}]
-    //         // p in post.players => (i in p.bets and p in pre.players)
-    //         // p not in post.players => i not in p.bets
-    //     }
-    // }
+    all p : Player | {
+        p not in pre.players => p not in post.players
+        // p in post.players <=> p in pre.players
+    }
 }
 
 /**
@@ -340,17 +333,17 @@ pred hasStraightFlush[hand: set Card] {
 * This predicate checks if the player's best hand is a high card.
 * Param: p - a player
 */
-pred hasHighCard[hand: set Card] {
-    {not hasRoyalFlush[hand]
-    not hasStraightFlush[hand]
-    not hasFourOfaKind[hand]
-    not hasFullHouse[hand]
-    not hasFlush[hand]
-    not hasStraight[hand]
-    not hasThreeofaKind[hand]
-    not hasTwoPair[hand]
-    not hasPair[hand]}
-}
+// pred hasHighCard[p : Player, r : RoundState] {
+//     {not hasRoyalFlush[p, r]
+//     not hasStraightFlush[p, r]
+//     not hasFourOfaKind[p, r]
+//     not hasFullHouse[p, r]
+//     not hasFlush[p, r]
+//     not hasStraight[p, r]
+//     not hasThreeofaKind[p, r]
+//     not hasTwoPair[p, r]
+//     not hasPair[p, r]}
+// }
 
 /**
 * This predicate checks the hand a player has and sets the players hand to the type of hand they have.
@@ -367,7 +360,6 @@ pred evaluateHand[p : Player, r : RoundState] {
         hasThreeofaKind[bAndH] => p.hand.score[r] = -1
         hasTwoPair[bAndH] => p.hand.score[r] = -2
         hasPair[bAndH] => p.hand.score[r] = -3
-        hasHighCard[bAndH] => p.hand.score[r] = -4
     }
 
 }
