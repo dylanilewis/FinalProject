@@ -128,6 +128,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
+                    i = 0 => post.players = pre.players
                     #{pre.players} = 0 => i = 0
                 }
             }
@@ -147,6 +148,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 } else no p.hand.score[post]
                 some i : Int | (pre.bstate != preFlop) => {
                     i >= 0 and i <= 5 and pre.bet = i
+                    i = 0 => post.players = pre.players
                     #{pre.players} = 0 => i = 0
                 }
             }
@@ -163,13 +165,14 @@ pred validTransition[pre : RoundState, post : RoundState] {
                     evaluateHand[p, post]
                     some p.hand.score[post]
                 } else no p.hand.score[post]
-                some i : Int | (pre.bstate != preFlop) => {
-                    i >= 0 and i <= 5 and pre.bet = i
-                    #{pre.players} = 0 => i = 0
-                    #{post.players} = 0 => post.bet = 0
+                some i1, i2 : Int | (pre.bstate != preFlop) => {
+                    i1 >= 0 and i1 <= 5 and i2 >= 0 and i2 <= 5 and pre.bet = i1 and post.bet = i2
+                    i1 = 0 => post.players = pre.players
+                    #{pre.players} = 0 => i1 = 0
+                    #{post.players} = 0 => i2 = 0
                 }
             }
-            all disj p1, p2 : Player | (p1 in post.players and p2 in post.players) => {
+            all disj p1, p2 : post.players | {
                 p1.hand.score[post] > p2.hand.score[post] => post.winner = p1
             } 
         }
@@ -238,8 +241,8 @@ pred playerRotation {
 */
 pred hasPair[hand: set Card]{
     some rank1 : Rank | {
-        #{r : Rank | r in hand.rank and r = rank1} = 2
-    }
+        #{c : Card | c in hand and c.rank = rank1} = 2
+    } 
 }
 
 /**
@@ -248,7 +251,7 @@ pred hasPair[hand: set Card]{
 */
 pred hasTwoPair[hand: set Card] {
     some disj rank1, rank2 : Rank | {
-        #{r : Rank | r in hand.rank and r = rank1} = 2 and #{r : Rank | r in hand.rank and r = rank2} = 2
+        #{c : Card | c in hand and c.rank = rank1} = 3 and #{c : Card | c in hand and c.rank = rank2} = 2
     }
 }
 
@@ -266,6 +269,7 @@ pred hasFullHouse[hand: set Card] {
 */
 pred hasStraight[hand: set Card] {
     some r1, r2, r3, r4, r5 : Rank | {
+        // #{c : Card | c in hand and c.rank = rank1} = 2
         {r1 in hand.rank and r2.value = add[r1.value,1]
         r2 in hand.rank and r3.value = add[r2.value,1]
         r3 in hand.rank and r4.value = add[r3.value,1]
@@ -280,7 +284,7 @@ pred hasStraight[hand: set Card] {
 */
 pred hasFlush[hand: set Card] {
     some suit1 : Suit | {
-        #{s : Suit | s in hand.suit and s = suit1} > 4
+        #{c : Card | c in hand and c.suit = suit1} > 4
     }
 }
 
@@ -290,6 +294,7 @@ pred hasFlush[hand: set Card] {
 */
 pred hasRoyalFlush[hand: set Card] {
     some i1, i2, i3, i4, i5 : Int | {
+        // #{c : Card | c in hand and c.rank = rank1} = 2
         {hasStraightFlush[hand]
         Ace in hand.rank
         King in hand.rank
@@ -305,7 +310,7 @@ pred hasRoyalFlush[hand: set Card] {
 */
 pred hasFourOfaKind[hand: set Card] {
     some rank1 : Rank | {
-        #{r : Rank | r in hand.rank and r = rank1} = 4
+        #{c : Card | c in hand and c.rank = rank1} = 4
     }
 }
 
@@ -315,7 +320,7 @@ pred hasFourOfaKind[hand: set Card] {
 */
 pred hasThreeofaKind[hand: set Card] {
     some rank1 : Rank | {
-        #{r : Rank | r in hand.rank and r = rank1} = 3
+        #{c : Card | c in hand and c.rank = rank1} = 3
     }
 }
 
@@ -348,17 +353,17 @@ pred hasStraightFlush[hand: set Card] {
 * Param: p - a player
 */
 pred evaluateHand[p : Player, r : RoundState] {
-    let bAndH = r.board + p.hand | {
+    let bAndH = r.board + p.hand.cards | {
         hasRoyalFlush[bAndH] => p.hand.score[r] = 5
-        hasStraightFlush[bAndH] => p.hand.score[r] = 4 
-        hasFourOfaKind[bAndH] => p.hand.score[r] = 3 
-        hasFullHouse[bAndH] => p.hand.score[r] = 2
-        hasFlush[bAndH] => p.hand.score[r] = 1
-        hasStraight[bAndH] => p.hand.score[r] = 0
-        hasThreeofaKind[bAndH] => p.hand.score[r] = -1
-        hasTwoPair[bAndH] => p.hand.score[r] = -2
-        hasPair[bAndH] => p.hand.score[r] = -3
-        p.hand.score[r] = -4
+        else hasStraightFlush[bAndH] => p.hand.score[r] = 4 
+        else hasFourOfaKind[bAndH] => p.hand.score[r] = 3 
+        else hasFullHouse[bAndH] => p.hand.score[r] = 2
+        else hasFlush[bAndH] => p.hand.score[r] = 1
+        else hasStraight[bAndH] => p.hand.score[r] = 0
+        else hasThreeofaKind[bAndH] => p.hand.score[r] = -1
+        else hasTwoPair[bAndH] => p.hand.score[r] = -2
+        else hasPair[bAndH] => p.hand.score[r] = -3
+        else p.hand.score[r] = -4
     }
 
 }
