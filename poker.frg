@@ -268,13 +268,12 @@ pred hasFullHouse[hand: set Card] {
 * Param: p - a player
 */
 pred hasStraight[hand: set Card] {
-    some r1, r2, r3, r4, r5 : Rank | {
-        // #{c : Card | c in hand and c.rank = rank1} = 2
-        {r1 in hand.rank and r2.value = add[r1.value,1]
-        r2 in hand.rank and r3.value = add[r2.value,1]
-        r3 in hand.rank and r4.value = add[r3.value,1]
-        r4 in hand.rank and r5.value = add[r4.value,1]
-        r5 in hand.rank}
+    some r1, r2, r3, r4, r5 : Rank | some c1, c2, c3, c4, c5 : Card | {
+        {c1 in hand and c1.rank = r1
+        c2 in hand and c2.rank = r2 and r2.value = add[r1.value,1]
+        c3 in hand and c3.rank = r3 and r3.value = add[r2.value,1]
+        c4 in hand and c4.rank = r4 and r4.value = add[r3.value,1]
+        c5 in hand and c5.rank = r5 and r5.value = add[r4.value,1]}
     }
 }
 
@@ -293,14 +292,13 @@ pred hasFlush[hand: set Card] {
 * Param: p - a player
 */
 pred hasRoyalFlush[hand: set Card] {
-    some i1, i2, i3, i4, i5 : Int | {
-        // #{c : Card | c in hand and c.rank = rank1} = 2
+    some i1, i2, i3, i4, i5 : Int | some c1, c2, c3, c4, c5 : Card | {
         {hasStraightFlush[hand]
-        Ace in hand.rank
-        King in hand.rank
-        Queen in hand.rank
-        Jack in hand.rank
-        Ten in hand.rank}
+        c1 in hand and c1.rank = Ace
+        c2 in hand and c2.rank = King
+        c3 in hand and c3.rank = Queen
+        c4 in hand and c4.rank = Jack
+        c5 in hand and c5.rank = Ten}
     }
 }
 
