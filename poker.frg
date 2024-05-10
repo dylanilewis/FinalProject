@@ -270,10 +270,10 @@ pred hasFullHouse[hand: set Card] {
 pred hasStraight[hand: set Card] {
     some r1, r2, r3, r4, r5 : Rank | some c1, c2, c3, c4, c5 : Card | {
         {c1 in hand and c1.rank = r1
-        c2 in hand and c2.rank = r2 and r2.value = add[r1.value,1]
-        c3 in hand and c3.rank = r3 and r3.value = add[r2.value,1]
-        c4 in hand and c4.rank = r4 and r4.value = add[r3.value,1]
-        c5 in hand and c5.rank = r5 and r5.value = add[r4.value,1]}
+        c2 in hand and c2.rank = r2 and r2.value = add[r1.value, 1]
+        c3 in hand and c3.rank = r3 and r3.value = add[r2.value, 1]
+        c4 in hand and c4.rank = r4 and r4.value = add[r3.value, 1]
+        c5 in hand and c5.rank = r5 and r5.value = add[r4.value, 1]}
     }
 }
 
@@ -329,22 +329,6 @@ pred hasThreeofaKind[hand: set Card] {
 pred hasStraightFlush[hand: set Card] {
     hasStraight[hand] and hasFlush[hand]
 }
-
-/**
-* This predicate checks if the player's best hand is a high card.
-* Param: p - a player
-*/
-// pred hasHighCard[p : Player, r : RoundState] {
-//     {not hasRoyalFlush[p, r]
-//     not hasStraightFlush[p, r]
-//     not hasFourOfaKind[p, r]
-//     not hasFullHouse[p, r]
-//     not hasFlush[p, r]
-//     not hasStraight[p, r]
-//     not hasThreeofaKind[p, r]
-//     not hasTwoPair[p, r]
-//     not hasPair[p, r]}
-// }
 
 /**
 * This predicate checks the hand a player has and sets the players hand to the type of hand they have.
