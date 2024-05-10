@@ -6,8 +6,6 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-    // pot: one Int,
-    turn: one Player,
     next: lone RoundState,
     winner: lone Player,
     bet: one Int
@@ -40,10 +38,7 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
-    hand: one Hand,
-    // chips: one Int,
-    // bets: set Int,
-    nextPlayer: one Player
+    hand: one Hand
 }
 
 // This sig represents a hand. It contains a set of cards and a score.
@@ -102,7 +97,6 @@ pred initRound[r : RoundState] {
     r.winner = none
     dealCards
     r.bet = 0
-    // r.pot = 0
 }
 
 /**
@@ -116,7 +110,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
     all p: Player | {
         p not in pre.players => p not in post.players
     }
-    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
@@ -176,13 +169,9 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 }
             }
             all disj p1, p2 : post.players | {
-                p1.hand.score[post] > p2.hand.score[post] => post.winner = p1
+                p1.hand.score[post] >= p2.hand.score[post] => post.winner = p1
             } 
         }
-    }
-    all p : Player | {
-        p not in pre.players => p not in post.players
-        // p in post.players <=> p in pre.players
     }
 }
 
@@ -200,7 +189,6 @@ pred traces {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
         (r.bstate != postRiver) => validTransition[r, r.next]
-        // (r.winner != none or #{r.players} = 0 or r.bstate != postRiver) => validTransition[r, r.next]
     }
 }
 
@@ -230,15 +218,6 @@ pred wellformedCards {
                 c in p.hand.cards or c in r.deck or c in r.board
             }
         }
-    }
-}
-
-/**
-* This predicate checks that all players are reachable from each other, meaning there is a cycle of players.
-*/
-pred playerRotation {
-    all p1, p2 : Player | {
-        reachable[p1, p2, nextPlayer]
     }
 }
 
@@ -393,7 +372,6 @@ inst optimize_rank {
 run {
     uniqueCards
     wellformedCards
-    playerRotation
     traces
 } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
 
@@ -403,7 +381,6 @@ run {
 // run {
 //     uniqueCards
 //     wellformedCards
-//     playerRotation
 //     traces
 //     all p : Player | some r : RoundState | {r = preFlop and p.hand.score[r] = -3} => {
 //         all r : RoundState {
