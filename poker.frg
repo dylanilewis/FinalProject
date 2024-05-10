@@ -374,31 +374,31 @@ pred evaluateHand[p : Player, r : RoundState] {
 inst optimize_rank {
     Rank = `Two0 + `Three0 + `Four0 + `Five0 + `Six0 + `Seven0 + `Eight0 + `Nine0 + `Ten0 + `Jack0 + `Queen0 + `King0 + `Ace0
     Two = `Two0
-    `Two.value = (-8)
+    `Two0.value = (-8)
     Three = `Three0
-    `Three.value = (-7)
+    `Three0.value = (-7)
     Four = `Four0
-    `Four.value = (-6)
+    `Four0.value = (-6)
     Five = `Five0
-    `Five.value = (-5)
+    `Five0.value = (-5)
     Six = `Six0
-    `Six.value = (-4)
+    `Six0.value = (-4)
     Seven = `Seven0
-    `Seven.value = (-3)
+    `Seven0.value = (-3)
     Eight = `Eight0
-    `Eight.value = (-2)
+    `Eight0.value = (-2)
     Nine = `Nine0
-    `Nine.value = (-1)
+    `Nine0.value = (-1)
     Ten = `Ten0
-    `Ten.value = (0)
+    `Ten0.value = (0)
     Jack = `Jack0
-    `Jack.value = (1)
+    `Jack0.value = (1)
     Queen = `Queen0
-    `Queen.value = (2)
+    `Queen0.value = (2)
     King = `King0
-    `King.value = (3)
+    `King0.value = (3)
     Ace = `Ace0
-    `Ace.value = (4)
+    `Ace0.value = (4)
 }
 
 run {
