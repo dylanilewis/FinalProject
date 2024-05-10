@@ -412,13 +412,18 @@ run {
 //     }
 // } for exactly 13 Card, 4 Player, 5 Int
 
-/* My ideas for other strategies that need to be created. 
-Run like 10 instances of each strategy and record wins/losses and money gained/money lost overall.
-Then write about best/most interesting ones in readme and include screenshots of an instance from a couple of them
+/* My ideas for other strategies that need to be created.
+
+VERY IMPORTANT TO TIM:
+Run like 10 instances of each strategy and record wins/losses and money gained/money lost overall, use the betting values * num of players in state to calculate.
+(Can be done with all players or one player, yall's choice, maybe best for tracking wins with 1 player though)
+Then write about best/most interesting ones in readme and include screenshots of an instance from a couple of them (make sure screenshots do not have bugs in them)
+This is our property verification alongside writing tests for each predicate (also need to include screenshot of all tests passing in readme and have it preloaded for final presentation)
+
 1. Player that never folds no matter what hand.
 2. If after flop, you have only high card, then fold.
 3. If ever get fullHouse or better for any roundstate never fold
 4. If after flop, you have straight or better, then never fold.
-5. Player that stays in game no matter what until postRiver and then folds or raises based on hand (maybe flush or better)
+5. Player that stays in game no matter what until postRiver and then folds or raises based on hand (maybe 3 of a kind or better)
 6. Think of more strategies that can be implemented. (maybe some around mid hands like pair, 2 pair and 3 of a king)
 */
