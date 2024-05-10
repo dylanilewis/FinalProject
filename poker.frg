@@ -397,3 +397,28 @@ run {
     traces
 } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
 
+
+// Example of a strategy that we need to create (if start with any pocket pair, then never fold)
+// (I am not fully confident this works, i.e I have not checked this runs, but this is the idea and it will be close to functional)
+// run {
+//     uniqueCards
+//     wellformedCards
+//     playerRotation
+//     traces
+//     all p : Player | some r : RoundState | {r = preFlop and p.hand.score[r] = -3} => {
+//         all r : RoundState {
+//             p in r.players
+//         }
+//     }
+// } for exactly 13 Card, 4 Player, 5 Int
+
+/* My ideas for other strategies that need to be created. 
+Run like 10 instances of each strategy and record wins/losses and money gained/money lost overall.
+Then write about best/most interesting ones in readme and include screenshots of an instance from a couple of them
+1. Player that never folds no matter what hand.
+2. If after flop, you have only high card, then fold.
+3. If ever get fullHouse or better for any roundstate never fold
+4. If after flop, you have straight or better, then never fold.
+5. Player that stays in game no matter what until postRiver and then folds or raises based on hand (maybe flush or better)
+6. Think of more strategies that can be implemented. (maybe some around mid hands like pair, 2 pair and 3 of a king)
+*/
