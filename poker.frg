@@ -6,6 +6,7 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
+    // pot: one Int,
     turn: one Player,
     next: lone RoundState,
     winner: lone Player,
@@ -40,6 +41,8 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
     hand: one Hand,
+    // chips: one Int,
+    // bets: set Int,
     nextPlayer: one Player
 }
 
@@ -99,6 +102,7 @@ pred initRound[r : RoundState] {
     r.winner = none
     dealCards
     r.bet = 0
+    // r.pot = 0
 }
 
 /**
@@ -112,6 +116,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
     all p: Player | {
         p not in pre.players => p not in post.players
     }
+    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
@@ -120,7 +125,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
-            #{pre.players} > 1 => #{post.players} >= 1
+            #{post.players} > 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -140,7 +145,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 4
             post.deck = pre.deck - c4
             post.winner = none
-            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -159,7 +163,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
-            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -177,6 +180,10 @@ pred validTransition[pre : RoundState, post : RoundState] {
             } 
         }
     }
+    all p : Player | {
+        p not in pre.players => p not in post.players
+        // p in post.players <=> p in pre.players
+    }
 }
 
 /**
@@ -189,7 +196,7 @@ pred traces {
         initRound[preFlop]
     }
     all r : RoundState | {
-        all p : Player | {
+        some p : Player | {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
         (r.bstate != postRiver) => validTransition[r, r.next]
@@ -354,33 +361,33 @@ pred evaluateHand[p : Player, r : RoundState] {
 * This instance is used to optimize the conversion between the rank and value of a card.
 */
 inst optimize_rank {
-    Rank = `Two + `Three + `Four + `Five + `Six + `Seven + `Eight + `Nine + `Ten + `Jack + `Queen + `King + `Ace
-    Two = `Two
-    `Two.value = (-8)
-    Three = `Three
-    `Three.value = (-7)
-    Four = `Four
-    `Four.value = (-6)
-    Five = `Five
-    `Five.value = (-5)
-    Six = `Six
-    `Six.value = (-4)
-    Seven = `Seven
-    `Seven.value = (-3)
-    Eight = `Eight
-    `Eight.value = (-2)
-    Nine = `Nine
-    `Nine.value = (-1)
-    Ten = `Ten
-    `Ten.value = (0)
-    Jack = `Jack
-    `Jack.value = (1)
-    Queen = `Queen
-    `Queen.value = (2)
-    King = `King
-    `King.value = (3)
-    Ace = `Ace
-    `Ace.value = (4)
+    Rank = `Two0 + `Three0 + `Four0 + `Five0 + `Six0 + `Seven0 + `Eight0 + `Nine0 + `Ten0 + `Jack0 + `Queen0 + `King0 + `Ace0
+    Two = `Two0
+    `Two0.value = (-8)
+    Three = `Three0
+    `Three0.value = (-7)
+    Four = `Four0
+    `Four0.value = (-6)
+    Five = `Five0
+    `Five0.value = (-5)
+    Six = `Six0
+    `Six0.value = (-4)
+    Seven = `Seven0
+    `Seven0.value = (-3)
+    Eight = `Eight0
+    `Eight0.value = (-2)
+    Nine = `Nine0
+    `Nine0.value = (-1)
+    Ten = `Ten0
+    `Ten0.value = (0)
+    Jack = `Jack0
+    `Jack0.value = (1)
+    Queen = `Queen0
+    `Queen0.value = (2)
+    King = `King0
+    `King0.value = (3)
+    Ace = `Ace0
+    `Ace0.value = (4)
 }
 
 run {
@@ -388,5 +395,5 @@ run {
     wellformedCards
     playerRotation
     traces
-    some r : RoundState | r.winner != none
 } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
+
