@@ -2,6 +2,7 @@ const stage = new Stage();
 let sortedStates = []; // Holds the sorted game states
 let currentStateIndex = 3; // Tracker for the current state index
 
+//sorts states in order
 function sortAndLinkGameStates() {
     // Fetch all RoundState atoms
     let states = instance.signature('RoundState').atoms();
@@ -31,79 +32,64 @@ function sortAndLinkGameStates() {
     // } does not work
 }
 
+//get names
 function getAtomName(atom) {
   if (atom) {
-    return atom.toString().replace('Test', '').replace(/\d+$/, ''); // Removes 'Test' and trailing digits
+    return atom.toString().replace('Test', '').replace(/\d+$/, ''); 
   }
-  return "none";
+  return "none"; 
+}
+
+//function that takes in a player atom and fixes the name
+function getPlayerName(atom) {
+    let atomName = atom.toString();
+
+    if (atomName.includes("Player0")) {
+        return "Player 1";
+    } else if (atomName.includes("Player1")) {
+        return "Player 2";
+    } else if (atomName.includes("Player2")) {
+        return "Player 3";
+    } else if (atomName.includes("Player3")) {
+        return "Player 4";
+    } else {
+        return "Unknown Player"; 
+    }
+}
+
+//converts the score to a string of a players hand score
+function getHandDescription(score) {
+    const descriptions = {
+        5: "Royal Flush",
+        4: "Straight Flush",
+        3: "Four of a Kind",
+        2: "Full House",
+        1: "Flush",
+        0: "Straight",
+        '-1': "Three of a Kind", // negatives are strings
+        '-2': "Two Pair",
+        '-3': "Pair",
+        '-4': "High Card"
+    };
+    return descriptions[score.toString()] || "Unknown Hand"; 
 }
 
 
-function getWinName(atom) {
-  if (atom) {
-    return atom.toString().replace('Test', '').replace(/\[/, ''); // Removes 'Test' and trailing digits
-  }
-  return "none";
-}
-
-function nextState() {
-  var last_state = sortedStates.length - 1;
-  if (currentStateIndex < last_state) {
-    currentStateIndex += 1;
-  }
-  stage.render(svg,document);
-}
-
-function prevState() {
-  if (currentStateIndex != 0) {
-    currentStateIndex -= 1;
-  }
-  stage.render(svg,document);
-}
-
-// var nextButton = new TextBox({
-//         text: '+',
-//         coords: {x: 500, y: 500},
-//         fontSize: 200,
-//         events: [
-//             {
-//                 event: "click", 
-//                 callback: () => {
-//                 nextState();
-//       },
-//       },
-//     ],
-// },);
-// stage.add(nextButton);
-
-// var prevButton = new TextBox({
-//         text: '-',
-//         coords: {x: 200, y: 500},
-//         fontSize: 200,
-//         events: [
-//             {
-//                 event: "click",
-//                  callback: function () {
-//                      prevState()
-//                      },
-//             },
-//         ],
-// });
-// stage.add(prevButton);
-
-
+//function that is called to display the game
 function displayPokerState() {
-    sortAndLinkGameStates(); // Ensure states are sorted
+    sortAndLinkGameStates(); 
+    const roundState = sortedStates[currentStateIndex]; 
 
-    const roundState = sortedStates[currentStateIndex]; // Access the current state
+    //Board label
     const boardDiv = new TextBox({
         text: 'Board: ',
         coords: {x: 300, y: 150},
-        color: 'blue',
+        color: 'black',
         fontSize: 16
     });
     stage.add(boardDiv);
 
+    //Shows what state the game is in
     const stateName = getAtomName(roundState.bstate)
     const stateid = new TextBox({
         text: `Current State: ${stateName}`,
@@ -113,20 +99,35 @@ function displayPokerState() {
     });
     stage.add(stateid);
 
+    //getting player data to get and place cards
     var playersingame = roundState.players.tuples()
-//getting player data to get and place cards
     playersingame.forEach((player, pindex) => {
-        var playerCards = player.join(hand).join(cards).tuples()
-
+      //getting player cards  
+      var playerCards = player.join(hand).join(cards).tuples()
+       
+       //getting player score
+        var playerHandScore = player.join(hand).join(score).tuples()
+        const scoreValue = playerHandScore[currentStateIndex].atoms()[1]
+        const handScore = getHandDescription(scoreValue)
+        
+        //player name and score labels
         const playerText = new TextBox({
-            text: `Player ${pindex + 1}: `,
+            text: `${getPlayerName(player)}: `,
             coords: {x: 50, y: 100 + pindex * 87.5},
             color: 'black',
             fontSize: 16
         });
         stage.add(playerText);
 
-        //here I need another for loop to print out the cards
+        const scoreText = new TextBox({
+            text: `Score: ${handScore} `,
+            coords: {x: 50, y: 115 + pindex * 88},
+            color: 'black',
+            fontSize: 10
+        });
+        stage.add(scoreText);
+
+        //Print out the cards
         playerCards.forEach((card, cindex) => {
             var rankname = getAtomName(card.join(rank));
             var suitname = getAtomName(card.join(suit));
@@ -138,47 +139,54 @@ function displayPokerState() {
             color: "lightgrey",
             borderColor: "black",
             borderWidth: 0.5,
-            label: `${rankname} \n ${suitname}`,
+            label: `${rankname} \n ${suitname} `,
             labelColor: "bold",
             labelSize: 7
         })
         stage.add(cardshape);
         });
-//End of player loop
+//end of player loop
     });
-//Same for Board
+
+    //Display cards on the Board
     var boardCards = roundState.board.tuples();
     boardCards.forEach((card, cindex) => {
         var rankname = getAtomName(card.join(rank));
         var suitname = getAtomName(card.join(suit));
         const cardshape = new Rectangle({
-            coords: {x: 275 + cindex * 65, y: 175},
-            height: 75,
-            width: 50,
+            coords: {x: 275 + cindex * 100, y: 175},
+            height: 112.5,
+            width: 72.5,
             labelLocation: "center",
             color: "lightgrey",
             borderColor: "black",
-            borderWidth: 0.5,
+            borderWidth: 1,
             label: `${rankname} \n ${suitname}`,
             labelColor: "bold",
-            labelSize: 7
+            labelSize: 10
         })
         stage.add(cardshape);
     });
 
     //in final round declare a winner:
     if (currentStateIndex == 3) {
-        var winner = getWinName(roundState.winner);
+        var winner = getPlayerName(roundState.winner);
+        var playerHandScore = roundState.winner.join(hand).join(score).tuples()
+        const scoreValue = playerHandScore[currentStateIndex].atoms()[1]
+
+        const handScore = getHandDescription(scoreValue)
+ 
         
         const winnerText = new TextBox({
-            text: `Winner: ${winner}!`,
-            coords: {x: 325, y: 100},
+            text: `${winner +  ' wins with ' + handScore}!`,
+            coords: {x: 500, y: 100},
             color: 'green',
-            fontSize: 16
+            fontSize: 25
         });
         stage.add(winnerText);
     }
 }
 
-displayPokerState(); // Initialize the display
-stage.render(svg, document); 
+
+displayPokerState(); // Initialize the display with the first state
+stage.render(svg, document); // Render the stage
