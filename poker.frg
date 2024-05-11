@@ -6,7 +6,10 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
+<<<<<<< HEAD
     turn: one Player,
+=======
+>>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
     next: lone RoundState,
     winner: lone Player,
     bet: one Int
@@ -39,8 +42,12 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
+<<<<<<< HEAD
     hand: one Hand,
     nextPlayer: one Player
+=======
+    hand: one Hand
+>>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
 }
 
 // This sig represents a hand. It contains a set of cards and a score.
@@ -173,7 +180,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
                 }
             }
             all disj p1, p2 : post.players | {
-                p1.hand.score[post] > p2.hand.score[post] => post.winner = p1
+                p1.hand.score[post] >= p2.hand.score[post] => post.winner = p1
             } 
         }
     }
@@ -193,7 +200,6 @@ pred traces {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
         (r.bstate != postRiver) => validTransition[r, r.next]
-        // (r.winner != none or #{r.players} = 0 or r.bstate != postRiver) => validTransition[r, r.next]
     }
 }
 
@@ -223,15 +229,6 @@ pred wellformedCards {
                 c in p.hand.cards or c in r.deck or c in r.board
             }
         }
-    }
-}
-
-/**
-* This predicate checks that all players are reachable from each other, meaning there is a cycle of players.
-*/
-pred playerRotation {
-    all p1, p2 : Player | {
-        reachable[p1, p2, nextPlayer]
     }
 }
 
@@ -430,6 +427,7 @@ inst optimize_rank {
     `Card13Test.rank = Ace
 }
 
+<<<<<<< HEAD
 // run {
 //     uniqueCards
 //     wellformedCards
@@ -437,6 +435,13 @@ inst optimize_rank {
 //     traces
 //     some r : RoundState | r.winner != none
 // } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
+=======
+run {
+    uniqueCards
+    wellformedCards
+    traces
+} for exactly 13 Card, 4 Player, 5 Int for optimize_rank
+>>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
 
 
 // Example of a strategy that we need to create (if start with any pocket pair, then never fold)
@@ -444,7 +449,6 @@ inst optimize_rank {
 // run {
 //     uniqueCards
 //     wellformedCards
-//     playerRotation
 //     traces
 //     all p : Player | some r : RoundState | {r = preFlop and p.hand.score[r] = -3} => {
 //         all r : RoundState {
