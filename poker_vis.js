@@ -1,8 +1,8 @@
 //Vis script for poker game
 
 const stage = new Stage();
-let sortedStates = []; // Holds the sorted game states
-let currentStateIndex = 0; // Tracker for the current state index
+let sortedStates = []; 
+let currentStateIndex = 3; 
 
 //sorts states in order
 function sortAndLinkGameStates() {
@@ -108,8 +108,13 @@ function displayPokerState() {
       var playerCards = player.join(hand).join(cards).tuples()
        
        //getting player score
-        var playerHandScore = player.join(hand).join(score).tuples()
-        const scoreValue = playerHandScore[currentStateIndex].atoms()[1]
+          var playerScores = player.join(hand).join(score).tuples();
+        var currentScore = playerScores.find(scoreTuple => {
+            return sortedStates[currentStateIndex].equals(scoreTuple.atoms()[0]); // Match score tuple's state with the current state
+        });
+        var scoreValue = currentScore ? currentScore.atoms()[1] : "Score unavailable";
+
+        //translate score into level of hand
         const handScore = getHandDescription(scoreValue)
         
         //player name and score labels
@@ -128,6 +133,14 @@ function displayPokerState() {
             fontSize: 10
         });
         stage.add(scoreText);
+//Used for testing fetching the score of the player
+      //   const scoreRounds = new TextBox({
+      //     text: `Lists ${player + currentScore} `,
+      //     coords: {x: 250, y: 460 + pindex * 89},
+      //     color: 'black',
+      //     fontSize: 10
+      // });
+      // stage.add(scoreRounds);
 
         //Print out the cards
         playerCards.forEach((card, cindex) => {
