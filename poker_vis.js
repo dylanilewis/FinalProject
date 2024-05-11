@@ -68,8 +68,8 @@ var prevButton = new TextBox({
         fontSize: 200,
         events: [
             {
-                event: 'click',
-                 callback: () => {
+                event: "click",
+                 callback: function () {
                      prevState()
                      },
             },
@@ -84,7 +84,7 @@ function displayPokerState() {
     const roundState = sortedStates[currentStateIndex]; // Access the current state
      sortedStates.forEach((state, index) => {
         const stateInfo = new TextBox({
-            text: `State ${state + index + 1}: ${state.bstate.id()}`,
+            text: `State ${state + (index + 1)}: ${state.bstate.id()}`,
             coords: {x: 300, y: 100 + index * 30},
             color: 'black',
             fontSize: 16
