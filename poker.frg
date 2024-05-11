@@ -6,10 +6,6 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-<<<<<<< HEAD
-    turn: one Player,
-=======
->>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
     next: lone RoundState,
     winner: lone Player,
     bet: one Int
@@ -42,12 +38,7 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
-<<<<<<< HEAD
-    hand: one Hand,
-    nextPlayer: one Player
-=======
     hand: one Hand
->>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
 }
 
 // This sig represents a hand. It contains a set of cards and a score.
@@ -425,23 +416,29 @@ inst optimize_rank {
     `Card12Test.rank = Ace
     `Card13Test.suit = Spades
     `Card13Test.rank = Ace
+    // Player = `Player1Test + `Player2Test + `Player3Test + `Player4Test
+    // Hand = `Hand1Test + `Hand2Test + `Hand3Test + `Hand4Test
+    // `Player1Test.hand = `Hand1Test
+    // `Hand1Test.cards = `Card3Test + `Card4Test
+    // RoundState = `RoundState1Test + `RoundState2Test + `RoundState3Test + `RoundState4Test
+    // BoardState = `preFlopTest + `postFlopTest + `postTurnTest + `postRiverTest
+    // preFlop = `preFlopTest
+    // `RoundState1Test.bstate = preFlop
+    // postFlop = `postFlopTest
+    // postTurn = `postTurnTest
+    // postRiver = `postRiverTest
+    // `RoundState2Test.bstate = postFlop
+    // `RoundState3Test.bstate = postTurn
+    // `RoundState4Test.bstate = postRiver
+    // `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
 }
 
-<<<<<<< HEAD
 // run {
 //     uniqueCards
 //     wellformedCards
-//     playerRotation
 //     traces
 //     some r : RoundState | r.winner != none
 // } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
-=======
-run {
-    uniqueCards
-    wellformedCards
-    traces
-} for exactly 13 Card, 4 Player, 5 Int for optimize_rank
->>>>>>> 984b0709b10481a2ee9009da8cc6cfb80b9078e3
 
 
 // Example of a strategy that we need to create (if start with any pocket pair, then never fold)
@@ -473,58 +470,63 @@ This is our property verification alongside writing tests for each predicate (al
 6. Think of more strategies that can be implemented. (maybe some around mid hands like pair, 2 pair and 3 of a king)
 */
 
-pred neverFolds {
-    some p : Player | all r : RoundState | {
+pred neverFolds[p: Player] {
+    all r : RoundState | {
         p in r.players
     }
 }
 
-pred highCardFold {
-    some p : Player | some r : RoundState | {
-        (r.bstate = postFlop and p.hand.score[r] = -4) => {
+pred highCardFold[p: Player] {
+        some r : RoundState | {
+            r.bstate = postFlop
+            p.hand.score[r] = -4
             p not in r.next.players
         }
     }
-}
 
-pred straightOrBetter {
-    some p : Player | some disj r1, r2 : RoundState | {
-        (r1.bstate = postFlop and p.hand.score[r1] >= 0) => {
-            r2.bsate = postRiver
-            p in r1.next.players
+pred straightOrBetter[p: Player] {
+        some r1: RoundState | {
+            r1.bstate = postFlop
+            p.hand.score[r1] >= 0
+        }
+        all r2: RoundState | {
             p in r2.players
         }
     }
+
+pred bestHandInTheGame[p: Player] {
+    some disj r1, r2 : RoundState | {
+            r1.bstate = postFlop
+            p.hand.score[r1] = 5
+            r2.bstate = postRiver
+            p in r1.next.players
+            p in r2.players
+        }
 }
 
-pred fullHouseOrBetter {
-    some p : Player | all r : RoundState | {
-        (p.hand.score[r] >= 2) => {
-            p in r.players
-        }
+pred postRiverFold[p: Player] {
+    some r : RoundState | {
+        (r.bstate = postRiver and p.hand.score[r] < 0)
+        p not in r.next.players
+
     }
 }
 
-pred postRiverFold {
-    some p : Player | some r : RoundState | {
-        (r.bstate = postRiver and p.hand.score[r] < 0) => {
-            p not in r.next.players
-        }
-        (r.bstate != postRiver) => {
-            p in r.players
-        }
-    }
+pred strategyTesting{
+    traces
+    uniqueCards
+    wellformedCards
+    some r : RoundState | r.winner != none
 }
 
 run {
     uniqueCards
     wellformedCards
-    playerRotation
     traces
     some r : RoundState | r.winner != none
     // neverFolds
     // highCardFold
     // straightOrBetter
-    // fullHouseOrBetter
+    // bestHandInTheGame
     // postRiverFold
 } for exactly 13 Card, 4 Player, 4 Int for optimize_rank

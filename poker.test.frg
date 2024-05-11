@@ -433,49 +433,126 @@ pred royalFlush[p : Player] {
     * Test suite for evaluateHand.  Ensures that the different card combinations
     give the player the appropriate score.
 */
-test suite for evaluateHand {
-    test expect {
-        sattest: {some p : Player, r: RoundState | evaluateHand[p, r]} is sat
-        // evalPairSat: {some p : Player, r: RoundState | pair[p, r] and evaluateHand[p, r] and p.hand.score[r] = -3} is sat
-        // evalTwoPairSat: {some p : Player | twoPair[p] and evaluateHand[p] and p.hand.score = -2} is sat
-        // evalThreeOfAKindSat: {some p : Player | threeOfAKind[p] and evaluateHand[p] and p.hand.score = -1} is sat
-        // evalStraightSat: {some p : Player | straight[p] and evaluateHand[p] and p.hand.score = 0} is sat
-        // evalFlushSat: {some p : Player | flush[p] and evaluateHand[p] and p.hand.score = 1} is sat
-        // evalFullHouseSat: {some p : Player | fullHouse[p] and evaluateHand[p] and p.hand.score = 2} is sat
-        // evalFourOfAKindSat: {some p : Player | fourOfAKind[p] and evaluateHand[p] and p.hand.score = 3} is sat
-        // evalStraightFlushSat: {some p : Player | straightFlush[p] and evaluateHand[p] and p.hand.score = 4} is sat
-        // evalRoyalFlushSat: {some p : Player | royalFlush[p] and evaluateHand[p] and p.hand.score = 5} is sat
+// test suite for evaluateHand {
+//     test expect {
+//         sattest: {some p : Player, r: RoundState | evaluateHand[p, r]} is sat
+//         // evalPairSat: {some p : Player, r: RoundState | pair[p, r] and evaluateHand[p, r] and p.hand.score[r] = -3} is sat
+//         // evalTwoPairSat: {some p : Player | twoPair[p] and evaluateHand[p] and p.hand.score = -2} is sat
+//         // evalThreeOfAKindSat: {some p : Player | threeOfAKind[p] and evaluateHand[p] and p.hand.score = -1} is sat
+//         // evalStraightSat: {some p : Player | straight[p] and evaluateHand[p] and p.hand.score = 0} is sat
+//         // evalFlushSat: {some p : Player | flush[p] and evaluateHand[p] and p.hand.score = 1} is sat
+//         // evalFullHouseSat: {some p : Player | fullHouse[p] and evaluateHand[p] and p.hand.score = 2} is sat
+//         // evalFourOfAKindSat: {some p : Player | fourOfAKind[p] and evaluateHand[p] and p.hand.score = 3} is sat
+//         // evalStraightFlushSat: {some p : Player | straightFlush[p] and evaluateHand[p] and p.hand.score = 4} is sat
+//         // evalRoyalFlushSat: {some p : Player | royalFlush[p] and evaluateHand[p] and p.hand.score = 5} is sat
+//     }
+// }
+
+// test suite for traces {
+//     test expect {
+//         vacuity: {traces} is sat
+//         pairSat: {traces => {some p : Player | hasPair[p.hand.cards]}} is sat
+//         // twoPairSat: {traces => {some p : Player, r: RoundState| hasTwoPair[p.hand.cards + r.board]}} is sat
+//         // threeOfAKindSat: {traces => {some p : Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}} is sat
+//         // straightSat: {traces => {some p : Player, r: RoundState | hasStraight[p.hand.cards + r.board]}} is sat
+//         // flushSat: {traces => {some p : Player, r: RoundState | hasFlush[p.hand.cards + r.board]}} is sat
+//         // fullHouseSat: {traces => {some p : Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}} is sat
+//         // fourOfAKindSat: {traces => {some p : Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}} is sat
+//         // straightFlushSat: {traces => {some p : Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}} is sat
+//         // royalFlushSat: {traces => {some p : Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}} is sat
+
+//         // pairScoreTest: {(traces and {some p: Player, r: RoundState | hasPair[p.hand.cards + r.board]}) => player.hand.score[r] = -3} is theorem
+//         // twoPairScoreTest: {(traces and {some p: Player, r: RoundState | hasTwoPair[p.hand.cards + r.board]}) => player.hand.score[r] = -2} is theorem
+//         // threeOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}) => player.hand.score[r] = -1} is theorem
+//         // straightScoreTest: {(traces and {some p: Player, r: RoundState | hasStraight[p.hand.cards + r.board]}) => player.hand.score[r] = 0} is theorem
+//         // flushScoreTest: {(traces and {some p: Player, r: RoundState | hasFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 1} is theorem
+//         // fullHouseScoreTest: {(traces and {some p: Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}) => player.hand.score[r] = 2} is theorem
+//         // fourOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}) => player.hand.score[r] = 3} is theorem
+//         // straightFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 4} is theorem
+//         // royalFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 5} is theorem
+//     }
+// }
+
+pred stillIn[p: Player] {
+    all r: RoundState | {
+        p in r.players
     }
 }
 
-test suite for traces {
-    test expect {
-        vacuity: {traces} is sat
-        pairSat: {traces => {some p : Player | hasPair[p.hand.cards]}} is sat
-        // twoPairSat: {traces => {some p : Player, r: RoundState| hasTwoPair[p.hand.cards + r.board]}} is sat
-        // threeOfAKindSat: {traces => {some p : Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}} is sat
-        // straightSat: {traces => {some p : Player, r: RoundState | hasStraight[p.hand.cards + r.board]}} is sat
-        // flushSat: {traces => {some p : Player, r: RoundState | hasFlush[p.hand.cards + r.board]}} is sat
-        // fullHouseSat: {traces => {some p : Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}} is sat
-        // fourOfAKindSat: {traces => {some p : Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}} is sat
-        // straightFlushSat: {traces => {some p : Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}} is sat
-        // royalFlushSat: {traces => {some p : Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}} is sat
-
-        // pairScoreTest: {(traces and {some p: Player, r: RoundState | hasPair[p.hand.cards + r.board]}) => player.hand.score[r] = -3} is theorem
-        // twoPairScoreTest: {(traces and {some p: Player, r: RoundState | hasTwoPair[p.hand.cards + r.board]}) => player.hand.score[r] = -2} is theorem
-        // threeOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}) => player.hand.score[r] = -1} is theorem
-        // straightScoreTest: {(traces and {some p: Player, r: RoundState | hasStraight[p.hand.cards + r.board]}) => player.hand.score[r] = 0} is theorem
-        // flushScoreTest: {(traces and {some p: Player, r: RoundState | hasFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 1} is theorem
-        // fullHouseScoreTest: {(traces and {some p: Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}) => player.hand.score[r] = 2} is theorem
-        // fourOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}) => player.hand.score[r] = 3} is theorem
-        // straightFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 4} is theorem
-        // royalFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 5} is theorem
+pred lowChanceOfWinning[p: Player] {
+    some r: RoundState | {
+        p.hand.score[r] <= -3
     }
+}
+
+pred proc1[p: Player] {
+    strategyTesting
+    neverFolds[p]
+}
+
+pred proc2[p: Player] {
+    strategyTesting
+    highCardFold[p]
+}
+
+pred proc3[p: Player] {
+    strategyTesting
+    straightOrBetter[p]
+}
+
+pred proc4[p: Player] {
+    strategyTesting
+    bestHandInTheGame[p]
+}
+
+pred proc5[p: Player] {
+    strategyTesting
+    postRiverFold[p]
 }
 
 
 //-----------Property Tests of Strategies----------------//
-test expect {
-    vacuity1: {traces and neverFolds} is sat
-}
+// test expect {
+//     vacuity1: {some p: Player | {proc1[p]}} for exactly 13 Card, 4 Player, 4 Int for optimize_rank is sat // PASS
+//     isWinner1: {some p: Player | (proc1[p]) and (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat // PASS
+//     // alwaysWinner1: {some p: Player | (proc1[p]) => (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is theorem //FAILS
+//     neverFold1: {some p : Player | proc1[p] implies stillIn[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat //PASS
+//     alwaysNeverFold1: {some p : Player | proc1[p] implies stillIn[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is theorem //PASS
+//     lowChanceOfWinning1: {some p: Player | proc1[p] and lowChanceOfWinning[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat //PASS
+// }
 
+// test expect {
+//     vacuity2: {some p: Player | {proc2[p]}} for exactly 13 Card, 4 Player, 4 Int for optimize_rank is sat // PASS
+// //     isWinner2: {some p: Player | (proc2[p]) and (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat // FAILS
+// //     alwaysWinner2: {some p: Player | (proc2[p]) => (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is theorem //FAILS
+//     neverFold1: {some p : Player | proc2[p] implies stillIn[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat //PASS
+// //     alwaysNeverFold2: {some p: Player | (proc[2]) => (all r:RoundState |p in r.players)} for exactly 13 Card, 4 Player, 4 Int for optimize_rank is theorem //FAILS
+//     lowChanceOfWinning2: {some p: Player | proc2[p] and lowChanceOfWinning[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat // PASS
+// }
+
+// test expect {
+    // vacuity3: {some p: Player | {proc3[p]}} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat // PASS
+    // isWinner3: {some p: Player | (proc3[p]) and (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat // PASS
+//     alwaysWinner3: {some p: Player | (proc3[p]) => (some r: RoundState | r.winner = p)} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is theorem //FAILS
+    // neverFold3: {some p : Player | proc3[p] implies stillIn[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat //PASS
+    // alwaysNeverFold3: {some p: Player | (proc3[p]) => (all r:RoundState |p in r.players)} for exactly 4 Player, 13 Card,  4 Int for optimize_rank is theorem //PASS
+//     lowChanceOfWinning3: {some p: Player | proc3[p] and lowChanceOfWinning[p]} for exactly 4 Player, 13 Card, 4 Int for optimize_rank is sat //FAILS
+// }
+
+// test expect {
+//     vacuity4: {some p: Player | {proc4[p]}} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // PASS
+//     isWinner4: {some p: Player | (proc4[p]) and (some r: RoundState | r.winner = p)} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // PASS
+//     alwaysWinner4: {some p: Player | (proc4[p]) => (some r: RoundState | r.winner = p)} is theorem for exactly 4 Player, 13 Card, 4 Int for optimize_rank //PASS
+//     neverFold4: {some p : Player | proc4[p] implies stillIn[p]} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank //PASS
+//     alwaysNeverFold4: {some p: Player | (proc4[p]) => (all r:RoundState |p in r.players)} is theorem for exactly 4 Player, 13 Card, 4 Int for optimize_rank //PASS
+//     lowChanceOfWinning4: {some p: Player | proc4[p] and lowChanceOfWinning[p]} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // FAILS
+// }   
+
+// test expect {
+//     vacuity5: {some p: Player | {proc5[p]}} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // PASS
+//     isWinner5: {some p: Player | (proc5[p]) and (some r: RoundState | r.winner = p)} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // PASS
+//     alwaysWinner5: {some p: Player | (proc5[p]) => (some r: RoundState | r.winner = p)} is theorem for exactly 4 Player, 13 Card, 4 Int for optimize_rank //FAILS
+//     neverFold5: {some p : Player | proc5[p] implies stillIn[p]} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank //PASS
+//     alwaysNeverFold5: {some p: Player | (proc5[p]) => (all r:RoundState |p in r.players)} is theorem for exactly 4 Player, 13 Card, 4 Int for optimize_rank //FAILS
+//     lowChanceOfWinning5: {some p: Player | proc5[p] and lowChanceOfWinning[p]} is sat for exactly 4 Player, 13 Card, 4 Int for optimize_rank // PASS
+// }

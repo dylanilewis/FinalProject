@@ -6,7 +6,22 @@ Answer goes here.
 
 What did the model prove?
 
-Answer goes here. (This is the paragraph where we should talk about the strategies and the results of them: e.g. players with pocket pairs preflop that never fold in later stages lost 6/10 instances or players with a handscore of 0 postFlop won 9/10 instances).
+We tested 5 different strategies in our model:
+1. Player that never folds no matter what hand.
+2. If after flop, you have only high card, then fold.
+3. If after flop, you have straight or better, then never fold.
+4. If you have best hand in the game before or after river, then never fold.
+5. Player that stays in game no matter what until postRiver and then folds or raises based on hand (maybe 3 of a kind or better)
+
+We then compared how these strategies perform against each other when being tested for different properties that the player's hand can have. The first property is isWinner. There, we check if there is any possible scenario where the player uses this strategy, and is able to win. The second property is alwaysWinner. There, we check if using this strategy the player will always win. The third property is neverFolds. There, we check if using that strategy there is a situation where the player can go all the way, and doesnt have to fold. The fourth property is alwaysNeverFolds. There, we check if using this strategy the player will always go until the last round. The Fifth property is low chance of winning, where, depending on the stage of the game and the score of the players hand, we give them a probability of winning, where a hand of strength below -2 is considered to give you a low chance of success.
+
+Here are the main findings:
+
+    1. The player that never folds no matter what hand, actually ends up winning a couple amount of times, as there were several instances for this case where the player won with a pair or highcard, mainly because the other players had really bad hands. Strategy number 5 is just a better version of never folding, because if you have a bad hand, then  you will fold and not 'waste your money'.
+    2. We were reassured about the fact that if you have a strong hand, you have to go all the way through no matter what, even if here and there there is another player that beats you, you will win most of the time. We only got a couple of instances where a straight lost to a flush, but that was it. 
+    3. The strategy of folding if you only have high card after the flop is not really effective. There were many instances were the player got a pair on the turn, or a flush after the river card, which would have made him win the hand. A lot can happen with the last two cards on the board, so ALWAYS folding when you only have a high card after the flop is not a good strategy.
+
+
 
 What tradeoffs did you make in choosing your representation? What else did you try that didn’t work as well?
 
