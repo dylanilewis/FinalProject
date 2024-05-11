@@ -6,7 +6,6 @@ sig RoundState {
     players: set Player,
     deck: set Card,
     board: set Card,
-    // pot: one Int,
     turn: one Player,
     next: lone RoundState,
     winner: lone Player,
@@ -41,8 +40,6 @@ one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King,
 // This sig represents a player. It contains a hand, chips, a bet, and the next player.
 sig Player {
     hand: one Hand,
-    // chips: one Int,
-    // bets: set Int,
     nextPlayer: one Player
 }
 
@@ -102,7 +99,6 @@ pred initRound[r : RoundState] {
     r.winner = none
     dealCards
     r.bet = 0
-    // r.pot = 0
 }
 
 /**
@@ -116,7 +112,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
     all p: Player | {
         p not in pre.players => p not in post.players
     }
-    
     some disj c1, c2, c3, c4, c5 : Card | {
         pre.bstate = preFlop implies {
             c1 + c2 + c3 in pre.deck
@@ -125,7 +120,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 3
             post.deck = pre.deck - c1 - c2 - c3
             post.winner = none
-            #{post.players} > 1
+            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -145,6 +140,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             #{post.board} = 4
             post.deck = pre.deck - c4
             post.winner = none
+            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -163,6 +159,7 @@ pred validTransition[pre : RoundState, post : RoundState] {
             post.board = pre.board + c5
             #{post.board} = 5
             post.deck = pre.deck - c5
+            #{pre.players} > 1 => #{post.players} >= 1
             all p : Player | {
                 p in post.players => {
                     evaluateHand[p, post]
@@ -180,10 +177,6 @@ pred validTransition[pre : RoundState, post : RoundState] {
             } 
         }
     }
-    all p : Player | {
-        p not in pre.players => p not in post.players
-        // p in post.players <=> p in pre.players
-    }
 }
 
 /**
@@ -196,7 +189,7 @@ pred traces {
         initRound[preFlop]
     }
     all r : RoundState | {
-        some p : Player | {
+        all p : Player | {
             (#{r.players} = 1 and p in r.players) => r.winner = p
         }
         (r.bstate != postRiver) => validTransition[r, r.next]
@@ -275,12 +268,13 @@ pred hasFullHouse[hand: set Card] {
 * Param: p - a player
 */
 pred hasStraight[hand: set Card] {
-    some r1 : Rank | some c1, c2, c3, c4, c5 : Card | {
-        {c1 in hand and c1.rank = r1
-        c2 in hand and c2.rank.value = add[r1.value, 1]
-        c3 in hand and c3.rank.value = add[r1.value, 2]
-        c4 in hand and c4.rank.value = add[r1.value, 3]
-        c5 in hand and c5.rank.value = add[r1.value, 4]}
+    some r1, r2, r3, r4, r5 : Rank | {
+        // #{c : Card | c in hand and c.rank = rank1} = 2
+        {r1 in hand.rank and r2.value = add[r1.value,1]
+        r2 in hand.rank and r3.value = add[r2.value,1]
+        r3 in hand.rank and r4.value = add[r3.value,1]
+        r4 in hand.rank and r5.value = add[r4.value,1]
+        r5 in hand.rank}
     }
 }
 
@@ -299,13 +293,14 @@ pred hasFlush[hand: set Card] {
 * Param: p - a player
 */
 pred hasRoyalFlush[hand: set Card] {
-    some c1, c2, c3, c4, c5 : Card | {
+    some i1, i2, i3, i4, i5 : Int | {
+        // #{c : Card | c in hand and c.rank = rank1} = 2
         {hasStraightFlush[hand]
-        c1 in hand and c1.rank = Ace
-        c2 in hand and c2.rank = King
-        c3 in hand and c3.rank = Queen
-        c4 in hand and c4.rank = Jack
-        c5 in hand and c5.rank = Ten}
+        Ace in hand.rank
+        King in hand.rank
+        Queen in hand.rank
+        Jack in hand.rank
+        Ten in hand.rank}
     }
 }
 
@@ -338,6 +333,22 @@ pred hasStraightFlush[hand: set Card] {
 }
 
 /**
+* This predicate checks if the player's best hand is a high card.
+* Param: p - a player
+*/
+// pred hasHighCard[p : Player, r : RoundState] {
+//     {not hasRoyalFlush[p, r]
+//     not hasStraightFlush[p, r]
+//     not hasFourOfaKind[p, r]
+//     not hasFullHouse[p, r]
+//     not hasFlush[p, r]
+//     not hasStraight[p, r]
+//     not hasThreeofaKind[p, r]
+//     not hasTwoPair[p, r]
+//     not hasPair[p, r]}
+// }
+
+/**
 * This predicate checks the hand a player has and sets the players hand to the type of hand they have.
 * Param: p - a player
 */
@@ -357,45 +368,75 @@ pred evaluateHand[p : Player, r : RoundState] {
 
 }
 
-/**
-* This instance is used to optimize the conversion between the rank and value of a card.
-*/
 inst optimize_rank {
-    Rank = `Two0 + `Three0 + `Four0 + `Five0 + `Six0 + `Seven0 + `Eight0 + `Nine0 + `Ten0 + `Jack0 + `Queen0 + `King0 + `Ace0
-    Two = `Two0
-    `Two0.value = (-8)
-    Three = `Three0
-    `Three0.value = (-7)
-    Four = `Four0
-    `Four0.value = (-6)
-    Five = `Five0
-    `Five0.value = (-5)
-    Six = `Six0
-    `Six0.value = (-4)
-    Seven = `Seven0
-    `Seven0.value = (-3)
-    Eight = `Eight0
-    `Eight0.value = (-2)
-    Nine = `Nine0
-    `Nine0.value = (-1)
-    Ten = `Ten0
-    `Ten0.value = (0)
-    Jack = `Jack0
-    `Jack0.value = (1)
-    Queen = `Queen0
-    `Queen0.value = (2)
-    King = `King0
-    `King0.value = (3)
-    Ace = `Ace0
-    `Ace0.value = (4)
+    Rank = `TwoTest + `ThreeTest + `FourTest + `FiveTest + `SixTest + `SevenTest + `EightTest + `NineTest + `TenTest + `JackTest + `QueenTest + `KingTest + `AceTest
+    Two = `TwoTest
+    `TwoTest.value = (-8)
+    Three = `ThreeTest
+    `ThreeTest.value = (-7)
+    Four = `FourTest
+    `FourTest.value = (-6)
+    Five = `FiveTest
+    `FiveTest.value = (-5)
+    Six = `SixTest
+    `SixTest.value = (-4)
+    Seven = `SevenTest
+    `SevenTest.value = (-3)
+    Eight = `EightTest
+    `EightTest.value = (-2)
+    Nine = `NineTest
+    `NineTest.value = (-1)
+    Ten = `TenTest
+    `TenTest.value = (0)
+    Jack = `JackTest
+    `JackTest.value = (1)
+    Queen = `QueenTest
+    `QueenTest.value = (2)
+    King = `KingTest
+    `KingTest.value = (3)
+    Ace = `AceTest
+    `AceTest.value = (4)
+    Suit = `ClubsTest + `DiamondsTest + `HeartsTest + `SpadesTest
+    Clubs = `ClubsTest
+    Diamonds = `DiamondsTest
+    Hearts = `HeartsTest
+    Spades = `SpadesTest
+    Card = `Card1Test + `Card2Test + `Card3Test + `Card4Test + `Card5Test + `Card6Test + `Card7Test + `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test + `Card13Test
+    `Card1Test.suit = Clubs
+    `Card1Test.rank = Two
+    `Card2Test.suit = Clubs
+    `Card2Test.rank = Three
+    `Card3Test.suit = Diamonds
+    `Card3Test.rank = Ten
+    `Card4Test.suit = Hearts
+    `Card4Test.rank = Jack
+    `Card5Test.suit = Spades
+    `Card5Test.rank = Queen
+    `Card6Test.suit = Clubs
+    `Card6Test.rank = Ten
+    `Card7Test.suit = Diamonds
+    `Card7Test.rank = Jack
+    `Card8Test.suit = Hearts
+    `Card8Test.rank = Queen
+    `Card9Test.suit = Spades
+    `Card9Test.rank = King
+    `Card10Test.suit = Clubs
+    `Card10Test.rank = Six
+    `Card11Test.suit = Diamonds
+    `Card11Test.rank = Seven
+    `Card12Test.suit = Hearts
+    `Card12Test.rank = Ace
+    `Card13Test.suit = Spades
+    `Card13Test.rank = Ace
 }
 
-run {
-    uniqueCards
-    wellformedCards
-    playerRotation
-    traces
-} for exactly 13 Card, 4 Player, 5 Int for optimize_rank
+// run {
+//     uniqueCards
+//     wellformedCards
+//     playerRotation
+//     traces
+//     some r : RoundState | r.winner != none
+// } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
 
 
 // Example of a strategy that we need to create (if start with any pocket pair, then never fold)
@@ -427,3 +468,59 @@ This is our property verification alongside writing tests for each predicate (al
 5. Player that stays in game no matter what until postRiver and then folds or raises based on hand (maybe 3 of a kind or better)
 6. Think of more strategies that can be implemented. (maybe some around mid hands like pair, 2 pair and 3 of a king)
 */
+
+pred neverFolds {
+    some p : Player | all r : RoundState | {
+        p in r.players
+    }
+}
+
+pred highCardFold {
+    some p : Player | some r : RoundState | {
+        (r.bstate = postFlop and p.hand.score[r] = -4) => {
+            p not in r.next.players
+        }
+    }
+}
+
+pred straightOrBetter {
+    some p : Player | some disj r1, r2 : RoundState | {
+        (r1.bstate = postFlop and p.hand.score[r1] >= 0) => {
+            r2.bsate = postRiver
+            p in r1.next.players
+            p in r2.players
+        }
+    }
+}
+
+pred fullHouseOrBetter {
+    some p : Player | all r : RoundState | {
+        (p.hand.score[r] >= 2) => {
+            p in r.players
+        }
+    }
+}
+
+pred postRiverFold {
+    some p : Player | some r : RoundState | {
+        (r.bstate = postRiver and p.hand.score[r] < 0) => {
+            p not in r.next.players
+        }
+        (r.bstate != postRiver) => {
+            p in r.players
+        }
+    }
+}
+
+run {
+    uniqueCards
+    wellformedCards
+    playerRotation
+    traces
+    some r : RoundState | r.winner != none
+    // neverFolds
+    // highCardFold
+    // straightOrBetter
+    // fullHouseOrBetter
+    // postRiverFold
+} for exactly 13 Card, 4 Player, 4 Int for optimize_rank

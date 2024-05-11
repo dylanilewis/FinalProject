@@ -2,27 +2,27 @@
 
 open "poker.frg"
 
-// pred dealCardsTest1 {
-//     some p1, p2 : Player | some disj c1, c2, c3, c4 : Card | {
-//         c1 in p1.hand.cards
-//         c2 in p1.hand.cards
-//         c3 in p2.hand.cards
-//         c4 in p2.hand.cards
-//     }
-// }
+pred dealCardsTest1 {
+    some p1, p2 : Player | some disj c1, c2, c3, c4 : Card | {
+        c1 in p1.hand.cards
+        c2 in p1.hand.cards
+        c3 in p2.hand.cards
+        c4 in p2.hand.cards
+    }
+}
 
-// pred dealCardsTest2 {
-//     some p : Player | some disj c1, c2 : Card | {
-//         p.hand.cards = c1 + c2
-//     }
-// }
+pred dealCardsTest2 {
+    some p : Player | some disj c1, c2 : Card | {
+        p.hand.cards = c1 + c2
+    }
+}
 
-// pred dealCardsTest3 {
-//     some p : Player | some c1, c2 : Card | {
-//         c1 = c2
-//         p.hand.cards = c1 + c2
-//     }
-// }
+pred dealCardsTest3 {
+    some p : Player | some c1, c2 : Card | {
+        c1 = c2
+        p.hand.cards = c1 + c2
+    }
+}
 
 pred dealCardsTest4 {
     some disj p1, p2 : Player | some c : Card | {
@@ -30,218 +30,141 @@ pred dealCardsTest4 {
     }
 }
 
-// pred dealCardsTest5 {
-//     some disj p1, p2 : Player | some c : Card | {
-//         c in p1.hand and c in p2.hand
-//     }
-// }
-
-// pred dealCardsTest6 {
-//     all p : Player | {
-//         #{p.hand.cards} = 2
-//     }
-// }
-
-// pred dealCardsTest7 {
-//     some p : Player | {
-//         #{p.hand.cards} = 3
-//     }
-// }
-
-// /**
-//  * Test suite for the dealCards predicate
-//  */
-// test suite for dealCards {
-//     test expect {
-//         dealCardsTest: {dealCards} is sat
-//         dealCards1: {dealCardsTest1 and dealCards} is sat
-//         dealCards2: {dealCardsTest2 and dealCards} is sat
-//         dealCards3: {dealCardsTest3 and dealCards} is unsat
-//         // dealCards4: {dealCardsTest4 and dealCards} is sat
-//         dealCards5: {dealCardsTest5 and dealCards} is unsat
-//         dealCards6: {dealCardsTest6 and dealCards} is sat
-//         dealCards7: {dealCardsTest7 and dealCards} is unsat
-//     }
-// }
-
-// pred playersChipsGood {
-//     all p : Player | {
-//         p.chips = 5
-//         p.bet = 0
-//     }
-// }
-
-// pred playersChipsBad {
-//     some p : Player | {
-//         p.chips = 3
-//         p.bet = 3
-//     }
-// }
-
-// pred playerBadBet {
-//     some p : Player | {p.bet = 3}
-// }
-
-// pred playerGoodBet {
-//     some p : Player | {p.bet = 0}
-// }
-
-// pred goodRoundState[s : RoundState] {
-//     s.highestBet = 0
-//     s.board = none
-//     s.highestBet = 0
-//     s.pot = 0
-// }
-
-// pred badRoundState[s : RoundState] {
-//     s.highestBet = 3
-//     s.board = none
-//     s.highestBet = 0
-//     s.pot = 0
-// }
-
-pred cardsinDeckandPlayersHands[s: RoundState] {
-    some c : Card, p: Player | {
-        c in s.deck and c in p.hand.cards
+pred dealCardsTest5 {
+    some disj p1, p2 : Player | some c : Card | {
+        c in p1.hand and c in p2.hand
     }
 }
 
-pred noCardsDeckAndHand[s: RoundState] {
-    all c : Card, p: Player | {
-        c in s.deck and not c in p.hand.cards
+pred dealCardsTest6 {
+    all p : Player | {
+        #{p.hand.cards} = 2
     }
-
 }
 
-// /**
-//  * Test suite for the initRound predicate
-//  */
-test suite for initRound {
+pred dealCardsTest7 {
+    some p : Player | {
+        #{p.hand.cards} = 3
+    }
+}
+
+/**
+ * Test suite for the dealCards predicate
+ */
+test suite for dealCards {
     test expect {
-        initRoundTest: {some r : RoundState | initRound[r] and cardsinDeckandPlayersHands[r]} is unsat
-        initRoundAndDealCardsTest: {some r : RoundState | initRound[r] and noCardsDeckAndHand[r]} is sat
-//         // initRoundTest: {some r : RoundState | initRound[r]} is sat
-//         // initRoundAndDealCardsTest: {some r : RoundState | initRound[r] and dealCards} is sat
-
-//         // t11: {some r : RoundState | playersChipsGood and goodRoundState[r] and initRound[r]} is sat
-//         t22: {some r : RoundState | playersChipsBad and goodRoundState[r] and initRound[r]} is unsat
-//         t33: {some r : RoundState | playersChipsGood and badRoundState[r] and initRound[r]} is unsat
+        dealCardsTest: {dealCards} is sat
+        // dealCards1: {dealCardsTest1 and dealCards} is sat
+        // dealCards2: {dealCardsTest2 and dealCards} is sat
+        // dealCards3: {dealCardsTest3 and dealCards} is unsat
+        // dealCards4: {dealCardsTest4 and dealCards} is sat
+        // dealCards5: {dealCardsTest5 and dealCards} is unsat
+        // dealCards6: {dealCardsTest6 and dealCards} is sat
+        // dealCards7: {dealCardsTest7 and dealCards} is unsat
     }
 }
 
-// pred winnerRoundState1Player[r: RoundState] {
-//     one p1 :Player | p1 in r.players and #(r.players) = 1
-//     r = postRiver
-// }
 
-// pred winnerRoundState2Players[r: RoundState] {
-//     some disj p1, p2 : Player | {
-//         p1 in r.players 
-//         p2 in r.players
-//         #(r.players) = 2
-//         r = postRiver
-//         p1.hand.score = 3
-//         p2.hand.score = 0
-//     }
-// }
+pred goodRoundState1[s : RoundState] {
+    s.bet = 0
+    s.board = none
+    s.winner = none
+    s.bstate = preFlop
+    #{s.players} = 4
 
-// pred badWinnerRoundState[r: RoundState] {
-//     some disj p1, p2 : Player | {
-//         p1 in r.players 
-//         p2 in r.players
-//         #(r.players) = 2
-//         r = postRiver
-//         p1.chips = p1.chips + r.pot
-//         p2.hand.score > p1.hand.score
-//     }
-// }
+    all p : Player | {
+        p.hand.score[s] = 2
+        p in s.players
+    }
+}
 
-// /**
-//  * Test suite for the winner predicate
-//  */
-// test suite for winner {
+pred badRoundState1[s : RoundState] {
+    s.bet = 0
+    s.board = none
+    s.winner = none
+    s.bstate = preFlop
+    #{s.players} = 4
+
+    some p : Player | {
+        no p.hand.score[s]
+        p in s.players
+    }
+}
+
+pred badRoundState2[s : RoundState] {
+    s.bet = 5
+    s.board = none
+    s.winner = none
+    s.bstate = preFlop
+    #{s.players} = 4
+
+    all p : Player | {
+        p.hand.score[s] = 2
+        p in s.players
+    }
+}
+
+pred badRoundState3[s : RoundState] {
+    s.bet = 0
+    s.board = none
+    s.winner = none
+    s.bstate = preFlop
+    #{s.players} = 5
+
+    some p : Player | {
+        p.hand.score[s] = 2
+        p in s.players
+    }
+}
+
+pred badRoundState4[s : RoundState] {
+    s.bet = 0
+    s.board = none
+    s.winner = none
+    s.bstate = preFlop
+    #{s.players} = 4
+
+    some p : Player | {
+        p not in s.players
+    }
+}
+
+/**
+ * Test suite for the initRound predicate
+ */
+// test suite for initRound {
 //     test expect {
-//         t1winner: {some r: RoundState | winnerRoundState1Player[r] and winner[r]} is sat
-//         // t2winner: {some r: RoundState | winnerRoundState2Players[r] and winner[r]} is sat
-//         t3winner: {some r: RoundState | badWinnerRoundState[r] and winner[r]} is unsat
+//         // initRoundTest00: {some r : RoundState | initRound[r]} is sat
+//         // initRoundTest0: {some r : RoundState | initRound[r] and dealCards} is sat
+//         // initRoundTest1: {some r : RoundState | initRound[r] and goodRoundState1[r]} is sat
+//         // initRoundTest2: {some r : RoundState | initRound[r] and badRoundState1[r]} is unsat
+//         // initRoundTest3: {some r : RoundState | initRound[r] and badRoundState2[r]} is unsat
+//         // initRoundTest4: {some r : RoundState | initRound[r] and badRoundState3[r]} is unsat
+//         // initRoundTest5: {some r : RoundState | initRound[r] and badRoundState4[r]} is unsat
 //     }
 // }
 
-// pred canPlay1[r: RoundState] {
-//     some p: Player | {
-//         p in r.players
-//         p.chips > 0
-//         r.turn = p
-//     }
-// }
+// pred preFlopToPostFlop1[pre, post: RoundState] {
+//     pre.bstate = preFlop
+//     pre.next = post
+//     post.bstate = postFlop
+//     pre.board = none
+//     #{post.players} = 3
+//     #(pre.players) = 4
+//     #(post.board) = 3
 
-// pred notHisTurn[r: RoundState] {
-//     some p : Player | {
-//         p in r.players
-//         r.turn = none
+//     some disj p1, p2, p3, p4: Player {
+//         p1 in pre.players
+//         p2 in pre.players
+//         p3 in pre.players
+//         p4 in pre.players
+        
+//         p1 in post.players
+//         p2 in post.players
+//         p3 in post.players
+//         no p4.hand.score[post]
 //     }
-// }
-
-// pred notInPlayers[r: RoundState] {
-//     some p : Player | {
-//         not p in r.players
-//         r.turn = p
-//     }
-// }
-
-// pred notEnoughChips[r: RoundState] {
-//     some p : Player | {
-//         p in r.players
-//         p.chips = 0
-//         r.turn = p
-//         p.bet < r.highestBet
-//     }
-// }
-
-// /**
-//  * Test suite for the canPlay predicate
-//  */
-// test suite for canPlay {
-//     test expect {
-//         t1CanPlay: {some r: RoundState | canPlay1[r] and canPlay[r]} is sat
-//         t2CanPlay: {some r: RoundState | notHisTurn[r] and canPlay[r]} is unsat
-//         t3CanPlay: {some r: RoundState | notInPlayers[r] and canPlay[r]} is unsat
-//         t4CanPlay: {some r: RoundState | notEnoughChips[r] and canPlay[r]} is unsat
-//     }
-// }
-
-// pred validTurn1[r: RoundState] {
-//     some p: Player | {
-//         p in r.players
-//         p.bet = r.highestBet
-//     }
-// }
-
-// pred notValidTurn1[r: RoundState] {
-//     some p: Player | {
-//         r.turn = p
-//         r.turn.nextPlayer != p
-//     }
-// }
-
-// /**
-//  * Test suite for the validTurn predicate
-//  */
-// test suite for validTurn {
-//     // assert canPlay is necessary for validTurn
-//     test expect {
-//         t1ValidTurn: {some r: RoundState | canPlay1[r] and validTurn[r]} is sat
-//         t5ValidTurn: {some r: RoundState | notValidTurn1[r] and validTurn[r]} is unsat
-//     }
-// }
-
-// pred preFlopToPostFlop[pre, post: RoundState] {
 //     some disj c1, c2, c3: Card {
-//         pre = preFlop
-//         pre' = post
-//         post = postFlop
-//         pre.board = none
-//         #(post.board) = 3
 //         post.board = c1 + c2 + c3
 //     }
 // }
@@ -295,47 +218,52 @@ test suite for initRound {
 //     #(post.board) = 3
 // }
 
-// /**
-//  * Test suite for the validTransition predicate
-//  */
+/**
+ * Test suite for the validTransition predicate
+ */
 // test suite for validTransition {
 //     // assert validTurn is necessary for validTransition
 //     test expect {
-//         // vt1: {some pre, post: RoundState | preFlopToPostFlop[pre, post] and validTransition[pre, post]} is sat
+//         // vt1: {some pre, post: RoundState | preFlopToPostFlop1[pre, post] and validTransition[pre, post]} is sat
 //         // vt2: {some pre, post: RoundState | postFlopToPostTurn[pre, post] and validTransition[pre, post]} is sat
-//         vt3: {some pre, post: RoundState | postTurnToPostRiver[pre, post] and validTransition[pre, post]} is sat
-//         vt4: {some pre, post: RoundState | badPreFlopToPostFlop[pre, post] and validTransition[pre, post]} is unsat
-//         vt5: {some pre, post: RoundState | badPostFlopToPostTurn[pre, post] and validTransition[pre, post]} is unsat
-//         vt6: {some pre, post: RoundState | badPostTurnToPostRiver[pre, post] and validTransition[pre, post]} is unsat
+//         // vt3: {some pre, post: RoundState | postTurnToPostRiver[pre, post] and validTransition[pre, post]} is sat
+//         // vt4: {some pre, post: RoundState | badPreFlopToPostFlop[pre, post] and validTransition[pre, post]} is unsat
+//         // vt5: {some pre, post: RoundState | badPostFlopToPostTurn[pre, post] and validTransition[pre, post]} is unsat
+//         // vt6: {some pre, post: RoundState | badPostTurnToPostRiver[pre, post] and validTransition[pre, post]} is unsat
 //     }
 // }
 
 // THESE TESTS MIGHT BE FAILING BECAUSE dealCards RESTRICTS PLAYER HANDS TO 2 CARDS
 
-pred highCard[p : Player] {
-    some c1, c2, c3, c4, c5, c6, c7 : Card {
-        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-        c1.suit = Clubs and c1.rank = Ace
-        c2.suit = Diamonds and c2.rank = Queen
-        c3.suit = Hearts and c3.rank = Ten
-        c4.suit = Clubs and c4.rank = Eight
-        c5.suit = Diamonds and c5.rank = Six
-        c6.suit = Hearts and c6.rank = Four
-        c7.suit = Clubs and c7.rank = Two
-    }
-}
+// pred highCard[cards : set Card] {
+//         Ace in cards.rank
+//         #{c : Card | c in cards and c.suit = Clubs} = 3
+//         #{c : Card | c in cards and c.suit = Diamonds} = 2
+//         Queen in cards.rank
+//         #{c : Card | c in cards and c.suit = Hearts} = 2
+//         Ten in cards.rank
+//         Eight in cards.rank
+//         Six in cards.rank
+//         Four in cards.rank
+//         Two in cards.rank
+//         #{cards} = 7
+//     }
 
-pred pair[p : Player] {
-    some c1, c2, c3, c4, c5, c6, c7 : Card {
-        c1 in p.hand and c2 in p.hand and c3 in p.hand and c4 in p.hand and c5 in p.hand and c6 in p.hand and c7 in p.hand
-        c1.suit = Clubs and c1.rank = Ace
-        c2.suit = Diamonds and c2.rank = Ace
-        c3.suit = Hearts and c3.rank = Ten
-        c4.suit = Clubs and c4.rank = Eight
-        c5.suit = Diamonds and c5.rank = Six
-        c6.suit = Hearts and c6.rank = Four
-        c7.suit = Clubs and c7.rank = Two
-    }
+pred pair[p: Player, r: RoundState] {
+    // some disj c1, c2, c3, c4, c5, c6, c7 : Card {
+    //     c1 in p.hand and c2 in p.hand
+    //     c3 in r.board and c4 in r.board and c5 in r.board and c6 in r.board and c7 in r.board
+    //     c1.suit = Clubs and c1.rank = Ace
+    //     c2.suit = Diamonds and c2.rank = Nine
+    //     c3.suit = Hearts and c3.rank = Ten
+    //     c4.suit = Clubs and c4.rank = Ten
+    //     c5.suit = Diamonds and c5.rank = Six
+    //     c6.suit = Hearts and c6.rank = Four
+    //     c7.suit = Clubs and c7.rank = Two
+    // }
+    some rank1 : Rank | {
+        #{c : Card | c in p.hand.cards and c.rank = rank1} = 2
+    } 
 }
 
 pred twoPair[p : Player] {
@@ -442,167 +370,112 @@ pred royalFlush[p : Player] {
     }
 }
 
-// test suite for hasHighCard {
-//     test expect {
-//         // highCardSat: {some p : Player | highCard[p] and hasHighCard[p]} is sat
-//         highCardUnsat1: {some p : Player | highCard[p] and hasPair[p]} is unsat
-//         highCardUnsat2: {some p : Player | highCard[p] and hasTwoPair[p]} is unsat
-//         highCardUnsat3: {some p : Player | highCard[p] and hasThreeofaKind[p]} is unsat
-//         highCardUnsat4: {some p : Player | highCard[p] and hasStraight[p]} is unsat
-//         highCardUnsat5: {some p : Player | highCard[p] and hasFlush[p]} is unsat
-//         highCardUnsat6: {some p : Player | highCard[p] and hasFullHouse[p]} is unsat
-//         highCardUnsat7: {some p : Player | highCard[p] and hasFourOfaKind[p]} is unsat
-//         highCardUnsat8: {some p : Player | highCard[p] and hasStraightFlush[p]} is unsat
-//         highCardUnsat9: {some p : Player | highCard[p] and hasRoyalFlush[p]} is unsat
-//     }
-// }
-
+/*
+    * Test suite for the various card combination predicates
+    These are all vacuity tests only, as the properties are tested
+    in the evaluateHand test suite 
+*/
 // test suite for hasPair {
 //     test expect {
-//         // pairSat: {some p : Player | pair[p] and hasPair[p]} is sat
-//         pairUnsat1: {some p : Player | pair[p] and hasHighCard[p]} is unsat
-//         pairUnsat2: {some p : Player | pair[p] and hasTwoPair[p]} is unsat
-//         pairUnsat3: {some p : Player | pair[p] and hasThreeofaKind[p]} is unsat
-//         pairUnsat4: {some p : Player | pair[p] and hasStraight[p]} is unsat
-//         pairUnsat5: {some p : Player | pair[p] and hasFlush[p]} is unsat
-//         pairUnsat6: {some p : Player | pair[p] and hasFullHouse[p]} is unsat
-//         pairUnsat7: {some p : Player | pair[p] and hasFourOfaKind[p]} is unsat
-//         pairUnsat8: {some p : Player | pair[p] and hasStraightFlush[p]} is unsat
-//         pairUnsat9: {some p : Player | pair[p] and hasRoyalFlush[p]} is unsat
+//         pairSat: {some h: Hand, r: RoundState | hasPair[h.cards + r.board]} is sat
 //     }
 // }
 
-// test suite for hasTwoPair {
-//     test expect {
-//         // twoPairSat: {some p : Player | twoPair[p] and hasTwoPair[p]} is sat
-//         twoPairUnsat1: {some p : Player | twoPair[p] and hasHighCard[p]} is unsat
-//         twoPairUnsat2: {some p : Player | twoPair[p] and hasPair[p]} is unsat
-//         twoPairUnsat3: {some p : Player | twoPair[p] and hasThreeofaKind[p]} is unsat
-//         twoPairUnsat4: {some p : Player | twoPair[p] and hasStraight[p]} is unsat
-//         twoPairUnsat5: {some p : Player | twoPair[p] and hasFlush[p]} is unsat
-//         twoPairUnsat6: {some p : Player | twoPair[p] and hasFullHouse[p]} is unsat
-//         twoPairUnsat7: {some p : Player | twoPair[p] and hasFourOfaKind[p]} is unsat
-//         twoPairUnsat8: {some p : Player | twoPair[p] and hasStraightFlush[p]} is unsat
-//         twoPairUnsat9: {some p : Player | twoPair[p] and hasRoyalFlush[p]} is unsat
-//     }
-// }
+// // test suite for hasTwoPair {
+// //     test expect {
+// //         twoPairSat: {some h: Hand, r: RoundState | hasTwoPair[h.cards + r.board]} is sat
+// //     }
+// // }
 
 // test suite for hasThreeofaKind {
 //     test expect {
-//         // threeOfAKindSat: {some p : Player | threeOfAKind[p] and hasThreeofaKind[p]} is sat
-//         threeOfAKindUnsat1: {some p : Player | threeOfAKind[p] and hasHighCard[p]} is unsat
-//         threeOfAKindUnsat2: {some p : Player | threeOfAKind[p] and hasPair[p]} is unsat
-//         threeOfAKindUnsat3: {some p : Player | threeOfAKind[p] and hasTwoPair[p]} is unsat
-//         threeOfAKindUnsat4: {some p : Player | threeOfAKind[p] and hasStraight[p]} is unsat
-//         threeOfAKindUnsat5: {some p : Player | threeOfAKind[p] and hasFlush[p]} is unsat
-//         threeOfAKindUnsat6: {some p : Player | threeOfAKind[p] and hasFullHouse[p]} is unsat
-//         threeOfAKindUnsat7: {some p : Player | threeOfAKind[p] and hasFourOfaKind[p]} is unsat
-//         threeOfAKindUnsat8: {some p : Player | threeOfAKind[p] and hasStraightFlush[p]} is unsat
-//         threeOfAKindUnsat9: {some p : Player | threeOfAKind[p] and hasRoyalFlush[p]} is unsat
+//         threeOfAKindSat: {some h: Hand, r: RoundState | hasThreeofaKind[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasStraight {
 //     test expect {
-//         // straightSat: {some p : Player | straight[p] and hasStraight[p]} is sat
-//         straightUnsat1: {some p : Player | straight[p] and hasHighCard[p]} is unsat
-//         straightUnsat2: {some p : Player | straight[p] and hasPair[p]} is unsat
-//         straightUnsat3: {some p : Player | straight[p] and hasTwoPair[p]} is unsat
-//         straightUnsat4: {some p : Player | straight[p] and hasThreeofaKind[p]} is unsat
-//         straightUnsat5: {some p : Player | straight[p] and hasFlush[p]} is unsat
-//         straightUnsat6: {some p : Player | straight[p] and hasFullHouse[p]} is unsat
-//         straightUnsat7: {some p : Player | straight[p] and hasFourOfaKind[p]} is unsat
-//         straightUnsat8: {some p : Player | straight[p] and hasStraightFlush[p]} is unsat
-//         straightUnsat9: {some p : Player | straight[p] and hasRoyalFlush[p]} is unsat
+//         straightSat: {some h: Hand, r: RoundState | hasStraight[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasFlush {
 //     test expect {
-//         // flushSat: {some p : Player | flush[p] and hasFlush[p]} is sat
-//         flushUnsat1: {some p : Player | flush[p] and hasHighCard[p]} is unsat
-//         flushUnsat2: {some p : Player | flush[p] and hasPair[p]} is unsat
-//         flushUnsat3: {some p : Player | flush[p] and hasTwoPair[p]} is unsat
-//         flushUnsat4: {some p : Player | flush[p] and hasThreeofaKind[p]} is unsat
-//         flushUnsat5: {some p : Player | flush[p] and hasStraight[p]} is unsat
-//         flushUnsat6: {some p : Player | flush[p] and hasFullHouse[p]} is unsat
-//         flushUnsat7: {some p : Player | flush[p] and hasFourOfaKind[p]} is unsat
-//         flushUnsat8: {some p : Player | flush[p] and hasStraightFlush[p]} is unsat
-//         flushUnsat9: {some p : Player | flush[p] and hasRoyalFlush[p]} is unsat
+//         flushSat: {some h: Hand, r: RoundState | hasFlush[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasFullHouse {
 //     test expect {
-//         // fullHouseSat: {some p : Player | fullHouse[p] and hasFullHouse[p]} is sat
-//         fullHouseUnsat1: {some p : Player | fullHouse[p] and hasHighCard[p]} is unsat
-//         fullHouseUnsat2: {some p : Player | fullHouse[p] and hasPair[p]} is unsat
-//         fullHouseUnsat3: {some p : Player | fullHouse[p] and hasTwoPair[p]} is unsat
-//         fullHouseUnsat4: {some p : Player | fullHouse[p] and hasThreeofaKind[p]} is unsat
-//         fullHouseUnsat5: {some p : Player | fullHouse[p] and hasStraight[p]} is unsat
-//         fullHouseUnsat6: {some p : Player | fullHouse[p] and hasFlush[p]} is unsat
-//         fullHouseUnsat7: {some p : Player | fullHouse[p] and hasFourOfaKind[p]} is unsat
-//         fullHouseUnsat8: {some p : Player | fullHouse[p] and hasStraightFlush[p]} is unsat
-//         fullHouseUnsat9: {some p : Player | fullHouse[p] and hasRoyalFlush[p]} is unsat
+//         fullHouseSat: {some h: Hand, r: RoundState | hasFullHouse[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasFourOfaKind {
 //     test expect {
-//         // fourOfAKindSat: {some p : Player | fourOfAKind[p] and hasFourOfaKind[p]} is sat
-//         fourOfAKindUnsat1: {some p : Player | fourOfAKind[p] and hasHighCard[p]} is unsat
-//         fourOfAKindUnsat2: {some p : Player | fourOfAKind[p] and hasPair[p]} is unsat
-//         fourOfAKindUnsat3: {some p : Player | fourOfAKind[p] and hasTwoPair[p]} is unsat
-//         fourOfAKindUnsat4: {some p : Player | fourOfAKind[p] and hasThreeofaKind[p]} is unsat
-//         fourOfAKindUnsat5: {some p : Player | fourOfAKind[p] and hasStraight[p]} is unsat
-//         fourOfAKindUnsat6: {some p : Player | fourOfAKind[p] and hasFlush[p]} is unsat
-//         fourOfAKindUnsat7: {some p : Player | fourOfAKind[p] and hasFullHouse[p]} is unsat
-//         fourOfAKindUnsat8: {some p : Player | fourOfAKind[p] and hasStraightFlush[p]} is unsat
-//         fourOfAKindUnsat9: {some p : Player | fourOfAKind[p] and hasRoyalFlush[p]} is unsat
+//         fourOfAKindSat: {some h: Hand, r: RoundState | hasFourOfaKind[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasStraightFlush {
 //     test expect {
-//         // straightFlushSat: {some p : Player | straightFlush[p] and hasStraightFlush[p]} is sat
-//         straightFlushUnsat1: {some p : Player | straightFlush[p] and hasHighCard[p]} is unsat
-//         straightFlushUnsat2: {some p : Player | straightFlush[p] and hasPair[p]} is unsat
-//         straightFlushUnsat3: {some p : Player | straightFlush[p] and hasTwoPair[p]} is unsat
-//         straightFlushUnsat4: {some p : Player | straightFlush[p] and hasThreeofaKind[p]} is unsat
-//         straightFlushUnsat5: {some p : Player | straightFlush[p] and hasStraight[p]} is unsat
-//         straightFlushUnsat6: {some p : Player | straightFlush[p] and hasFlush[p]} is unsat
-//         straightFlushUnsat7: {some p : Player | straightFlush[p] and hasFullHouse[p]} is unsat
-//         straightFlushUnsat8: {some p : Player | straightFlush[p] and hasFourOfaKind[p]} is unsat
-//         straightFlushUnsat9: {some p : Player | straightFlush[p] and hasRoyalFlush[p]} is unsat
+//         straightFlushSat: {some h: Hand, r: RoundState | hasStraightFlush[h.cards + r.board]} is sat
 //     }
 // }
 
 // test suite for hasRoyalFlush {
 //     test expect {
-//         // royalFlushSat: {some p : Player | royalFlush[p] and hasRoyalFlush[p]} is sat
-//         royalFlushUnsat1: {some p : Player | royalFlush[p] and hasHighCard[p]} is unsat
-//         royalFlushUnsat2: {some p : Player | royalFlush[p] and hasPair[p]} is unsat
-//         royalFlushUnsat3: {some p : Player | royalFlush[p] and hasTwoPair[p]} is unsat
-//         royalFlushUnsat4: {some p : Player | royalFlush[p] and hasThreeofaKind[p]} is unsat
-//         royalFlushUnsat5: {some p : Player | royalFlush[p] and hasStraight[p]} is unsat
-//         royalFlushUnsat6: {some p : Player | royalFlush[p] and hasFlush[p]} is unsat
-//         royalFlushUnsat7: {some p : Player | royalFlush[p] and hasFullHouse[p]} is unsat
-//         royalFlushUnsat8: {some p : Player | royalFlush[p] and hasFourOfaKind[p]} is unsat
-//         royalFlushUnsat9: {some p : Player | royalFlush[p] and hasStraightFlush[p]} is unsat
+//         royalFlushSat: {some h: Hand, r: RoundState | hasRoyalFlush[h.cards + r.board]} is sat
 //     }
 // }
 
-// test suite for evaluateHand {
-//     test expect {
-//         evalHighCardSat: {some p : Player | highCard[p] and evaluateHand[p] and p.hand.score = -4} is sat
-//         evalPairSat: {some p : Player | pair[p] and evaluateHand[p] and p.hand.score = -3} is sat
-//         evalTwoPairSat: {some p : Player | twoPair[p] and evaluateHand[p] and p.hand.score = -2} is sat
-//         evalThreeOfAKindSat: {some p : Player | threeOfAKind[p] and evaluateHand[p] and p.hand.score = -1} is sat
-//         evalStraightSat: {some p : Player | straight[p] and evaluateHand[p] and p.hand.score = 0} is sat
-//         evalFlushSat: {some p : Player | flush[p] and evaluateHand[p] and p.hand.score = 1} is sat
-//         evalFullHouseSat: {some p : Player | fullHouse[p] and evaluateHand[p] and p.hand.score = 2} is sat
-//         evalFourOfAKindSat: {some p : Player | fourOfAKind[p] and evaluateHand[p] and p.hand.score = 3} is sat
-//         evalStraightFlushSat: {some p : Player | straightFlush[p] and evaluateHand[p] and p.hand.score = 4} is sat
-//         evalRoyalFlushSat: {some p : Player | royalFlush[p] and evaluateHand[p] and p.hand.score = 5} is sat
-//     }
-// }
+/*
+    * Test suite for evaluateHand.  Ensures that the different card combinations
+    give the player the appropriate score.
+*/
+test suite for evaluateHand {
+    test expect {
+        sattest: {some p : Player, r: RoundState | evaluateHand[p, r]} is sat
+        // evalPairSat: {some p : Player, r: RoundState | pair[p, r] and evaluateHand[p, r] and p.hand.score[r] = -3} is sat
+        // evalTwoPairSat: {some p : Player | twoPair[p] and evaluateHand[p] and p.hand.score = -2} is sat
+        // evalThreeOfAKindSat: {some p : Player | threeOfAKind[p] and evaluateHand[p] and p.hand.score = -1} is sat
+        // evalStraightSat: {some p : Player | straight[p] and evaluateHand[p] and p.hand.score = 0} is sat
+        // evalFlushSat: {some p : Player | flush[p] and evaluateHand[p] and p.hand.score = 1} is sat
+        // evalFullHouseSat: {some p : Player | fullHouse[p] and evaluateHand[p] and p.hand.score = 2} is sat
+        // evalFourOfAKindSat: {some p : Player | fourOfAKind[p] and evaluateHand[p] and p.hand.score = 3} is sat
+        // evalStraightFlushSat: {some p : Player | straightFlush[p] and evaluateHand[p] and p.hand.score = 4} is sat
+        // evalRoyalFlushSat: {some p : Player | royalFlush[p] and evaluateHand[p] and p.hand.score = 5} is sat
+    }
+}
+
+test suite for traces {
+    test expect {
+        vacuity: {traces} is sat
+        pairSat: {traces => {some p : Player | hasPair[p.hand.cards]}} is sat
+        // twoPairSat: {traces => {some p : Player, r: RoundState| hasTwoPair[p.hand.cards + r.board]}} is sat
+        // threeOfAKindSat: {traces => {some p : Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}} is sat
+        // straightSat: {traces => {some p : Player, r: RoundState | hasStraight[p.hand.cards + r.board]}} is sat
+        // flushSat: {traces => {some p : Player, r: RoundState | hasFlush[p.hand.cards + r.board]}} is sat
+        // fullHouseSat: {traces => {some p : Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}} is sat
+        // fourOfAKindSat: {traces => {some p : Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}} is sat
+        // straightFlushSat: {traces => {some p : Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}} is sat
+        // royalFlushSat: {traces => {some p : Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}} is sat
+
+        // pairScoreTest: {(traces and {some p: Player, r: RoundState | hasPair[p.hand.cards + r.board]}) => player.hand.score[r] = -3} is theorem
+        // twoPairScoreTest: {(traces and {some p: Player, r: RoundState | hasTwoPair[p.hand.cards + r.board]}) => player.hand.score[r] = -2} is theorem
+        // threeOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasThreeofaKind[p.hand.cards + r.board]}) => player.hand.score[r] = -1} is theorem
+        // straightScoreTest: {(traces and {some p: Player, r: RoundState | hasStraight[p.hand.cards + r.board]}) => player.hand.score[r] = 0} is theorem
+        // flushScoreTest: {(traces and {some p: Player, r: RoundState | hasFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 1} is theorem
+        // fullHouseScoreTest: {(traces and {some p: Player, r: RoundState | hasFullHouse[p.hand.cards + r.board]}) => player.hand.score[r] = 2} is theorem
+        // fourOfAKindScoreTest: {(traces and {some p: Player, r: RoundState | hasFourOfaKind[p.hand.cards + r.board]}) => player.hand.score[r] = 3} is theorem
+        // straightFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasStraightFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 4} is theorem
+        // royalFlushScoreTest: {(traces and {some p: Player, r: RoundState | hasRoyalFlush[p.hand.cards + r.board]}) => player.hand.score[r] = 5} is theorem
+    }
+}
+
+
+//-----------Property Tests of Strategies----------------//
+test expect {
+    vacuity1: {traces and neverFolds} is sat
+}
+
