@@ -6,7 +6,6 @@ function sortAndLinkGameStates() {
     // Fetch all RoundState atoms
     let states = instance.signature('RoundState').atoms();
 
-    // Manually place each state in the correct position
     states.forEach(state => {
         const stateType = state.bstate.id();
         switch(stateType) {
@@ -31,6 +30,7 @@ function sortAndLinkGameStates() {
     //     console.error("Error: Not all game states were found!", sortedStates);
     // } does not work
 }
+
 
 function nextState() {
   var last_state = sortedStates.length - 1;
@@ -82,15 +82,15 @@ function displayPokerState() {
     sortAndLinkGameStates(); // Ensure states are sorted
 
     const roundState = sortedStates[currentStateIndex]; // Access the current state
-     sortedStates.forEach((state, index) => {
-        const stateInfo = new TextBox({
-            text: `State ${state + (index + 1)}: ${state.bstate.id()}`,
-            coords: {x: 300, y: 100 + index * 30},
-            color: 'black',
-            fontSize: 16
-        });
-        stage.add(stateInfo);
-    });
+    //  sortedStates.forEach((state, index) => {
+    //     const stateInfo = new TextBox({
+    //         text: `State ${state + (index + 1)}: ${state.bstate.id()}`,
+    //         coords: {x: 300, y: 100 + index * 30},
+    //         color: 'black',
+    //         fontSize: 16
+    //     });
+    //     stage.add(stateInfo);
+    // });
 
     const boardDiv = new TextBox({
         text: 'Board: ',
@@ -108,45 +108,46 @@ function displayPokerState() {
     });
     stage.add(stateid);
 
-    const currentTurnDiv = new TextBox({
-        text: `Player Turn: ${roundState.turn}`,
-        coords: {x: 300, y: 30},
-        color: 'blue',
-        fontSize: 16
-    });
-    stage.add(currentTurnDiv);
-
     var playersingame = roundState.players.tuples()
+//getting player data to get and place cards
+    playersingame.forEach((player, pindex) => {
+        var playerCards = player.join(hand).join(cards).tuples()
 
-    // playersingame.forEach((player, index) => {
-    //     const playerText = new TextBox({
-    //         text: `Player ${index + 1}: ${player.hand.cards.rank}`,
-    //         coords: {x: 100, y: 100 + index * 30},
-    //         color: 'black',
-    //         fontSize: 16
-    //     });
-    //     stage.add(playerText);
-    // });
+        const playerText = new TextBox({
+            text: `Player ${pindex + 1}: ${playerCards}`,
+            coords: {x: 125, y: 100 + pindex * 75},
+            color: 'black',
+            fontSize: 16
+        });
+        stage.add(playerText);
+
+        //here I need another for loop to print out the cards
+        playerCards.forEach((card, cindex) => {
+          const cardshape = new Rectangle({
+            coords: {x: 300 + cindex * 75, y:75 + pindex * 70},
+            height: 65,
+            width: 45,
+            labelLocation: "center",
+            color: "lightgrey",
+            borderColor: "black",
+            borderWidth: 1,
+            label: card.join(rank),
+            labelSize: 7
+        })
+        stage.add(cardshape);
+        });
+
+
+//end of player loop
+    });
 
         const players = new TextBox({
         text: `Players: ${roundState.players.tuples()}`,
-        coords: {x: 200, y: 350},
+        coords: {x: 175, y: 400},
         color: 'black',
         fontSize: 16
     });
     stage.add(players);
-
-    //testing for cards
-    let rect = new Rectangle({
-      coords: {x: 100, y:100},
-      height: 20,
-      width: 20,
-      color: "pink",
-      borderColor: "black",
-      borderWidth: 2,
-      label: "5"
-  })
-  stage.add(rect);
 }
 
 displayPokerState(); // Initialize the display with the first state
