@@ -1,6 +1,8 @@
+//Vis script for poker game
+
 const stage = new Stage();
 let sortedStates = []; // Holds the sorted game states
-let currentStateIndex = 3; // Tracker for the current state index
+let currentStateIndex = 0; // Tracker for the current state index
 
 //sorts states in order
 function sortAndLinkGameStates() {
