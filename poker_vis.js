@@ -32,20 +32,18 @@ function sortAndLinkGameStates() {
 }
 
 function getAtomName(atom) {
-  // This function retrieves the name of an atom and removes 'Test' or other unwanted parts.
   if (atom) {
     return atom.toString().replace('Test', '').replace(/\d+$/, ''); // Removes 'Test' and trailing digits
   }
-  return "none"; // Default return value if atom is undefined
+  return "none";
 }
 
 
 function getWinName(atom) {
-  // This function retrieves the name of an atom and removes 'Test' or other unwanted parts.
   if (atom) {
     return atom.toString().replace('Test', '').replace(/\[/, ''); // Removes 'Test' and trailing digits
   }
-  return "none"; // Default return value if atom is undefined
+  return "none";
 }
 
 function nextState() {
@@ -98,16 +96,6 @@ function displayPokerState() {
     sortAndLinkGameStates(); // Ensure states are sorted
 
     const roundState = sortedStates[currentStateIndex]; // Access the current state
-    //  sortedStates.forEach((state, index) => {
-    //     const stateInfo = new TextBox({
-    //         text: `State ${state + (index + 1)}: ${state.bstate.id()}`,
-    //         coords: {x: 300, y: 100 + index * 30},
-    //         color: 'black',
-    //         fontSize: 16
-    //     });
-    //     stage.add(stateInfo);
-    // });
-
     const boardDiv = new TextBox({
         text: 'Board: ',
         coords: {x: 300, y: 150},
@@ -156,9 +144,9 @@ function displayPokerState() {
         })
         stage.add(cardshape);
         });
-//end of player loop
+//End of player loop
     });
-
+//Same for Board
     var boardCards = roundState.board.tuples();
     boardCards.forEach((card, cindex) => {
         var rankname = getAtomName(card.join(rank));
@@ -192,5 +180,5 @@ function displayPokerState() {
     }
 }
 
-displayPokerState(); // Initialize the display with the first state
-stage.render(svg, document); // Render the stage
+displayPokerState(); // Initialize the display
+stage.render(svg, document); 
