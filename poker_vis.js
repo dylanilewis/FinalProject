@@ -31,6 +31,13 @@ function sortAndLinkGameStates() {
     // } does not work
 }
 
+function getAtomName(atom) {
+  // This function retrieves the name of an atom and removes 'Test' or other unwanted parts.
+  if (atom) {
+    return atom.toString().replace('Test', '').replace(/\d+$/, ''); // Removes 'Test' and trailing digits
+  }
+  return "none"; // Default return value if atom is undefined
+}
 
 function nextState() {
   var last_state = sortedStates.length - 1;
@@ -94,7 +101,7 @@ function displayPokerState() {
 
     const boardDiv = new TextBox({
         text: 'Board: ',
-        coords: {x: 100, y: 50},
+        coords: {x: 475, y: 50},
         color: 'blue',
         fontSize: 16
     });
@@ -114,8 +121,8 @@ function displayPokerState() {
         var playerCards = player.join(hand).join(cards).tuples()
 
         const playerText = new TextBox({
-            text: `Player ${pindex + 1}: ${playerCards}`,
-            coords: {x: 125, y: 100 + pindex * 75},
+            text: `Player ${pindex + 1}: `,
+            coords: {x: 100, y: 100 + pindex * 87.5},
             color: 'black',
             fontSize: 16
         });
@@ -123,15 +130,17 @@ function displayPokerState() {
 
         //here I need another for loop to print out the cards
         playerCards.forEach((card, cindex) => {
+            var rankname = getAtomName(card.join(rank));
+            var suitname = getAtomName(card.join(suit));
           const cardshape = new Rectangle({
-            coords: {x: 300 + cindex * 75, y:75 + pindex * 70},
-            height: 65,
-            width: 45,
+            coords: {x: 150 + cindex * 75, y:75 + pindex * 85},
+            height: 75,
+            width: 50,
             labelLocation: "center",
             color: "lightgrey",
             borderColor: "black",
             borderWidth: 1,
-            label: card.join(rank),
+            label: `${rankname} \n ${suitname}`,
             labelSize: 7
         })
         stage.add(cardshape);
@@ -143,7 +152,7 @@ function displayPokerState() {
 
         const players = new TextBox({
         text: `Players: ${roundState.players.tuples()}`,
-        coords: {x: 175, y: 400},
+        coords: {x: 175, y: 450},
         color: 'black',
         fontSize: 16
     });
