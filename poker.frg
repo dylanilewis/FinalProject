@@ -416,11 +416,11 @@ inst optimize_rank {
     `Card12Test.rank = Ten
     `Card13Test.suit = Spades
     `Card13Test.rank = Ace
-    Player = `Player1Test + `Player2Test + `Player3Test + `Player4Test
-    Hand = `Hand1Test + `Hand2Test + `Hand3Test + `Hand4Test
-    `Player1Test.hand = `Hand1Test
-    `Hand1Test.cards = `Card3Test + `Card4Test
-    RoundState = `RoundState1Test + `RoundState2Test + `RoundState3Test + `RoundState4Test
+    // Player = `Player1Test + `Player2Test + `Player3Test + `Player4Test
+    // Hand = `Hand1Test + `Hand2Test + `Hand3Test + `Hand4Test
+    // `Player1Test.hand = `Hand1Test
+    // `Hand1Test.cards = `Card3Test + `Card4Test
+    // RoundState = `RoundState1Test + `RoundState2Test + `RoundState3Test + `RoundState4Test
     // BoardState = `preFlopTest + `postFlopTest + `postTurnTest + `postRiverTest
     // preFlop = `preFlopTest
     // `RoundState1Test.bstate = preFlop
@@ -430,7 +430,7 @@ inst optimize_rank {
     // `RoundState2Test.bstate = postFlop
     // `RoundState3Test.bstate = postTurn
     // `RoundState4Test.bstate = postRiver
-    `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
+    // `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
 }
 
 
