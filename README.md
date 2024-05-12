@@ -66,8 +66,6 @@ Link
 
 Screenshots of instances goes here: APPARENTLY THIS IS VERY IMPORTANT TO TIM FOR BOTH README AND FINAL PRESENTATION (at least 1 with only 1 player remaining postRiver (that player being the winner), at least 1 with multiple players remaining postRiver (and one with strongest hand being the winner), 1-2 screenshots of instances of the strategies mentioned above, 1-2 screenshots of interesting instances (something like royal flush is drawn or all players fold on postFlop so 1 player instantly wins)). We can and should rig these using specific run statements, but still need to show them. 
 
-Screenshots
+TESTING:
 
-Screenshot of all tests passing: ALSO VERY IMPORTANT TO TIM ESPECIALLY BECAUSE TEST FILE TAKES FOREVER TO RUN (TIM USUALLY HAS PEOPLE RUN THE TEST FILE IN THE FINAL DEMO IN FRONT OF HIM)
-
-Screenshots
+For this model we tested every predicate. Deal cards, initRound, wellformed cards and unique cards were fairly easy to test because they do not deal with traces, or valid transition. Valid Transition was incredibly hard because the program took a lot of time to run so we could not get many results, but with the evaluator, and our visualizer we were able to see what was going wrong and fix it, until we had a functioning program. The same goes for evaluate hand, where we also had to rely heavily on the table of sterling and the visualizer, which we test by applying traces to a certain hand(pair, two pair, ect) and then check if the score of the player is the appropriate one. For the property tests of strategies, we tested them by creating 5 different test expects, one for each strategy, and isolated each case by adding new properties to see what the result would be, or if they have good chances of winning, etc. We ended up with 5 different test blocks that had a unique set of properties that would test the strategies.
