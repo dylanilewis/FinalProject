@@ -397,7 +397,7 @@ inst optimize_rank {
     `Card3Test.suit = Diamonds
     `Card3Test.rank = Ten
     `Card4Test.suit = Hearts
-    `Card4Test.rank = Jack
+    `Card4Test.rank = Ten
     `Card5Test.suit = Spades
     `Card5Test.rank = Queen
     `Card6Test.suit = Clubs
@@ -407,20 +407,20 @@ inst optimize_rank {
     `Card8Test.suit = Hearts
     `Card8Test.rank = Queen
     `Card9Test.suit = Spades
-    `Card9Test.rank = King
+    `Card9Test.rank = Six
     `Card10Test.suit = Clubs
     `Card10Test.rank = Six
     `Card11Test.suit = Diamonds
     `Card11Test.rank = Seven
-    `Card12Test.suit = Hearts
-    `Card12Test.rank = Ace
+    `Card12Test.suit = Spades
+    `Card12Test.rank = Ten
     `Card13Test.suit = Spades
     `Card13Test.rank = Ace
-    // Player = `Player1Test + `Player2Test + `Player3Test + `Player4Test
-    // Hand = `Hand1Test + `Hand2Test + `Hand3Test + `Hand4Test
-    // `Player1Test.hand = `Hand1Test
-    // `Hand1Test.cards = `Card3Test + `Card4Test
-    // RoundState = `RoundState1Test + `RoundState2Test + `RoundState3Test + `RoundState4Test
+    Player = `Player1Test + `Player2Test + `Player3Test + `Player4Test
+    Hand = `Hand1Test + `Hand2Test + `Hand3Test + `Hand4Test
+    `Player1Test.hand = `Hand1Test
+    `Hand1Test.cards = `Card3Test + `Card4Test
+    RoundState = `RoundState1Test + `RoundState2Test + `RoundState3Test + `RoundState4Test
     // BoardState = `preFlopTest + `postFlopTest + `postTurnTest + `postRiverTest
     // preFlop = `preFlopTest
     // `RoundState1Test.bstate = preFlop
@@ -430,7 +430,7 @@ inst optimize_rank {
     // `RoundState2Test.bstate = postFlop
     // `RoundState3Test.bstate = postTurn
     // `RoundState4Test.bstate = postRiver
-    // `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
+    `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
 }
 
 // run {

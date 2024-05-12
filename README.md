@@ -66,8 +66,8 @@ Link
 
 Screenshots of instances goes here: APPARENTLY THIS IS VERY IMPORTANT TO TIM FOR BOTH README AND FINAL PRESENTATION (at least 1 with only 1 player remaining postRiver (that player being the winner), at least 1 with multiple players remaining postRiver (and one with strongest hand being the winner), 1-2 screenshots of instances of the strategies mentioned above, 1-2 screenshots of interesting instances (something like royal flush is drawn or all players fold on postFlop so 1 player instantly wins)). We can and should rig these using specific run statements, but still need to show them. 
 
-Screenshots
+![One player remains and wins with straight](image.png)
 
-Screenshot of all tests passing: ALSO VERY IMPORTANT TO TIM ESPECIALLY BECAUSE TEST FILE TAKES FOREVER TO RUN (TIM USUALLY HAS PEOPLE RUN THE TEST FILE IN THE FINAL DEMO IN FRONT OF HIM)
+![Two players remain](image-1.png)
 
-Screenshots
+![Winner with Full House](image-2.png)
