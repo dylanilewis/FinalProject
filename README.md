@@ -46,7 +46,9 @@ We made many different tradeoffs in our representation, usually after trying to 
 
 What assumptions did you make about scope? What are the limits of your model?
 
-Assumption answer goes here.
+There are many assumptions that we had to make about the scope in order to have a functioning model. This is because Poker is an extremely complex game that deals with many variables at the same time. The first assumption we had to make is constraint the game to 13 cards and a single round. This is because if not the model will have way too many constraints and it would either take too long to run or run out of memory. Another major assumption that we made was there were always 4 players at the start of the game. We did this because of the same reason as above, it just took too long. We could not relly deal with actual betting, but we made the assumption that if no one makes a bet, then you wont fold, which is common sense in poker. 
+
+In the strategy section, we made the assumption that the player will always adhere to that strategy, no matter the situation that he/she is on. This is not realistic, as in real life poker, players will change their strategy depending on the situation they are in. But, we did it for the purpose of testing.
 
 There are quite a few limits of our model that we acknowledge or even chose to include. One of our limits is that unfortunately in our model there is no difference between a pair of Kings and a pair of Two's. This is a very large part of real life poker, but given the time constraints we de-prioritized this functionality and were not able to eventually implement it. Another limit of our model, which we previously mentioned is that the betting mechanics are not fully realized. While betting works, in real life poker this is a big difference between raising and re-raising, but in our model those are essentially the same thing, as a value of the round bet is set and player's must either match it or fold.
 
@@ -66,8 +68,14 @@ Link
 
 Screenshots of instances goes here: APPARENTLY THIS IS VERY IMPORTANT TO TIM FOR BOTH README AND FINAL PRESENTATION (at least 1 with only 1 player remaining postRiver (that player being the winner), at least 1 with multiple players remaining postRiver (and one with strongest hand being the winner), 1-2 screenshots of instances of the strategies mentioned above, 1-2 screenshots of interesting instances (something like royal flush is drawn or all players fold on postFlop so 1 player instantly wins)). We can and should rig these using specific run statements, but still need to show them. 
 
+<<<<<<< HEAD
 ![One player remains and wins with straight](image.png)
 
 ![Two players remain](image-1.png)
 
 ![Winner with Full House](image-2.png)
+=======
+TESTING:
+
+For this model we tested every predicate. Deal cards, initRound, wellformed cards and unique cards were fairly easy to test because they do not deal with traces, or valid transition. Valid Transition was incredibly hard because the program took a lot of time to run so we could not get many results, but with the evaluator, and our visualizer we were able to see what was going wrong and fix it, until we had a functioning program. The same goes for evaluate hand, where we also had to rely heavily on the table of sterling and the visualizer, which we test by applying traces to a certain hand(pair, two pair, ect) and then check if the score of the player is the appropriate one. For the property tests of strategies, we tested them by creating 5 different test expects, one for each strategy, and isolated each case by adding new properties to see what the result would be, or if they have good chances of winning, etc. We ended up with 5 different test blocks that had a unique set of properties that would test the strategies.
+>>>>>>> 20cd79ddc4d36d2b97922d730bdb40176c9b2894
