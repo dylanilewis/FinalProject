@@ -67,7 +67,7 @@ TESTING:
 For this model we tested every predicate. Deal cards, initRound, wellformed cards and unique cards were fairly easy to test because they do not deal with traces, or valid transition. Valid Transition was incredibly hard because the program took a lot of time to run so we could not get many results, but with the evaluator, and our visualizer we were able to see what was going wrong and fix it, until we had a functioning program. The same goes for evaluate hand, where we also had to rely heavily on the table of sterling and the visualizer, which we test by applying traces to a certain hand(pair, two pair, ect) and then check if the score of the player is the appropriate one. For the property tests of strategies, we tested them by creating 5 different test expects, one for each strategy, and isolated each case by adding new properties to see what the result would be, or if they have good chances of winning, etc. We ended up with 5 different test blocks that had a unique set of properties that would test the strategies.
 
 
-Link to project video:
+Link to project video: https://drive.google.com/file/d/10F-ODGE10isnD_at2EDSS3zzxhKOtmFA/view
 
 ![One player remains and wins with straight](image.png)
 
