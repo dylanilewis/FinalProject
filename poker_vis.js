@@ -186,12 +186,15 @@ function displayPokerState() {
     //in final round declare a winner:
     if (currentStateIndex == 3) {
         var winner = getPlayerName(roundState.winner);
-        var playerHandScore = roundState.winner.join(hand).join(score).tuples()
-        const scoreValue = playerHandScore[currentStateIndex].atoms()[1]
 
-        const handScore = getHandDescription(scoreValue)
- 
-        
+    //Have to resort could generalize
+           var playerScores = roundState.winner.join(hand).join(score).tuples();
+        var currentScore = playerScores.find(scoreTuple => {
+            return sortedStates[currentStateIndex].equals(scoreTuple.atoms()[0]); // Match score tuple's state with the current state
+        });
+        var scoreValue2 = currentScore ? currentScore.atoms()[1] : "Score unavailable";
+        const handScore = getHandDescription(scoreValue2)
+
         const winnerText = new TextBox({
             text: `${winner +  ' wins with ' + handScore}!`,
             coords: {x: 500, y: 100},
