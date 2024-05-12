@@ -36,7 +36,7 @@ abstract sig Rank {
 // These sigs represent the different ranks of a deck of cards.
 one sig Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King, Ace extends Rank {}
 
-// This sig represents a player. It contains a hand, chips, a bet, and the next player.
+// This sig represents a player. It contains a hand.
 sig Player {
     hand: one Hand
 }
@@ -433,13 +433,6 @@ inst optimize_rank {
     // `RoundState4Test.board = `Card8Test + `Card9Test + `Card10Test + `Card11Test + `Card12Test
 }
 
-// run {
-//     uniqueCards
-//     wellformedCards
-//     traces
-//     some r : RoundState | r.winner != none
-// } for exactly 13 Card, 4 Player, 5 Int for optimize_rank
-
 
 
 /* --------------------------------- Strategies --------------------------------- */
@@ -499,6 +492,9 @@ pred strategyTesting{
     wellformedCards
     some r : RoundState | r.winner != none
 }
+
+
+
 
 run {
     uniqueCards

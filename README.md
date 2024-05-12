@@ -46,7 +46,9 @@ We made many different tradeoffs in our representation, usually after trying to 
 
 What assumptions did you make about scope? What are the limits of your model?
 
-Assumption answer goes here.
+There are many assumptions that we had to make about the scope in order to have a functioning model. This is because Poker is an extremely complex game that deals with many variables at the same time. The first assumption we had to make is constraint the game to 13 cards and a single round. This is because if not the model will have way too many constraints and it would either take too long to run or run out of memory. Another major assumption that we made was there were always 4 players at the start of the game. We did this because of the same reason as above, it just took too long. We could not relly deal with actual betting, but we made the assumption that if no one makes a bet, then you wont fold, which is common sense in poker. 
+
+In the strategy section, we made the assumption that the player will always adhere to that strategy, no matter the situation that he/she is on. This is not realistic, as in real life poker, players will change their strategy depending on the situation they are in. But, we did it for the purpose of testing.
 
 There are quite a few limits of our model that we acknowledge or even chose to include. One of our limits is that unfortunately in our model there is no difference between a pair of Kings and a pair of Two's. This is a very large part of real life poker, but given the time constraints we de-prioritized this functionality and were not able to eventually implement it. Another limit of our model, which we previously mentioned is that the betting mechanics are not fully realized. While betting works, in real life poker this is a big difference between raising and re-raising, but in our model those are essentially the same thing, as a value of the round bet is set and player's must either match it or fold.
 
