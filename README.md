@@ -2,7 +2,24 @@
 
 Description of the structure of the model:
 
-Answer goes here.
+This Forge model simulates a Texas Hold'em poker game. It tracks the state of each round, from the dealing of cards to the declaration of a winner, ensuring a robust framework for simulating and analyzing poker strategies.
+
+Signatures:
+
+RoundState: Represents the state of a poker game round. It includes the board state, set of players, the deck, the cards on the table, a next field to keep track of states, a winner assigned in the last state, and current bet.
+
+BoardState: Abstract signature that outlines different stages of the game: preFlop, postFlop, postTurn, and postRiver.
+
+Card: Defines a playing card with a suit and a rank.
+
+Suit and Rank: Represent the card properties. Suits include Clubs, Diamonds, Hearts, and Spades. Ranks range from Two to Ace, facilitating the evaluation of hands based on traditional poker rules.
+
+Player: Contains a player's hand.
+
+Hand: Contains a set of 2 cards and a score that has scores as ints assigned to RoundStates
+
+Overview: 
+The game progresses through states defined by the RoundStates by assiging them a baordstate, starting at preFlop and moving through to postRiver. Transitions between states are governed by the validTransition predicate, which checks for consistency in players' actions and the game's progression rules enforcing that all players make a move and then the roundstate is properly updated to the next state sequentially.The model is equipped to test various poker strategies by simulating different player behaviors across multiple game instances. 
 
 What did the model prove?
 
@@ -41,9 +58,7 @@ How should we understand an instance of your model and what your visualization s
 
 In the default vizualizer, our model is extremely difficult to understand if you look at the graph tab. We highly recommend analyzing our model through the table tab, as this becomes much easier to read and understand (while still confusing at first). The main sigs to keep in mind are the fields of a RoundState. The players tell you which players remain in the round at which stages. You should notice that all 4 players are in the game at the beginning of the round (preFlop), but many of them have left the game (folded) at same point in the round, with often only having 1 or 2 players remaining in the game at (postFlop). Another thing to track is the score and hand tables as these tables tell you which hand belongs to which player and then also how strong each player's hand is (positive numbers correlate to strong hands, while negative numbers are weaker hands). Another important field to track is the winner field as this field indicates which player wins the game and in which roundstate they won. Another important field is the bet field. this fields value tells you what happened in regards to player's betting for that round. If the bet is 0, then all players checked, else if bet is not zero then a player raised, and all those that are remaining in the next state matched that bet. Finally the board and deck fields are important because these fields tell you which cards are shared by all players (the cards on the board) and the potential cards that could eventually be put on the board (cards in the deck). 
 
-Custom vizualizer paragraph goes here.
-
-Answer goes here.
+In the custom vizualizer we represent the different roundStates using a variable to cycle through the states 0-3. On the left we have the player that are active in the round with their cards listed out. On the right you can see the board and the cards on the table during that round. To progress through the states change the number for the currentStateIndex(Top of the poker_vis.js) starting from 0 corresponding to preFlop, 1 to postFlop, 2 to postTurn, and 3 to postRiver. This allows you to see the changes in players and thier scores with them disapearing in the following round if they would've folded. With 0, we see the preFlop and all the players with their cards. Moving to 1, we see the postFlop all the players that remain and the first three cards on the board. For 2 and 3, this continues with a single card being added for the postTurn and postRiver. In the postRiver there will either be one player remaining who will be declared the winner or multiple players out of which the one with the highest handscore will be declared the winner which is displayed. Addtionally, it also has a tracker of what State it is at the top and it constantly tracks the scores of the hands of all the players that are still in below their name.
 
 Link to project video goes here:
 
