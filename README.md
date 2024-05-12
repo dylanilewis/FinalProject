@@ -62,20 +62,15 @@ In the default vizualizer, our model is extremely difficult to understand if you
 
 In the custom vizualizer we represent the different roundStates using a variable to cycle through the states 0-3. On the left we have the player that are active in the round with their cards listed out. On the right you can see the board and the cards on the table during that round. To progress through the states change the number for the currentStateIndex(Top of the poker_vis.js) starting from 0 corresponding to preFlop, 1 to postFlop, 2 to postTurn, and 3 to postRiver. This allows you to see the changes in players and thier scores with them disapearing in the following round if they would've folded. With 0, we see the preFlop and all the players with their cards. Moving to 1, we see the postFlop all the players that remain and the first three cards on the board. For 2 and 3, this continues with a single card being added for the postTurn and postRiver. In the postRiver there will either be one player remaining who will be declared the winner or multiple players out of which the one with the highest handscore will be declared the winner which is displayed. Addtionally, it also has a tracker of what State it is at the top and it constantly tracks the scores of the hands of all the players that are still in below their name.
 
-Link to project video goes here:
+TESTING:
 
-Link
+For this model we tested every predicate. Deal cards, initRound, wellformed cards and unique cards were fairly easy to test because they do not deal with traces, or valid transition. Valid Transition was incredibly hard because the program took a lot of time to run so we could not get many results, but with the evaluator, and our visualizer we were able to see what was going wrong and fix it, until we had a functioning program. The same goes for evaluate hand, where we also had to rely heavily on the table of sterling and the visualizer, which we test by applying traces to a certain hand(pair, two pair, ect) and then check if the score of the player is the appropriate one. For the property tests of strategies, we tested them by creating 5 different test expects, one for each strategy, and isolated each case by adding new properties to see what the result would be, or if they have good chances of winning, etc. We ended up with 5 different test blocks that had a unique set of properties that would test the strategies.
 
-Screenshots of instances goes here: APPARENTLY THIS IS VERY IMPORTANT TO TIM FOR BOTH README AND FINAL PRESENTATION (at least 1 with only 1 player remaining postRiver (that player being the winner), at least 1 with multiple players remaining postRiver (and one with strongest hand being the winner), 1-2 screenshots of instances of the strategies mentioned above, 1-2 screenshots of interesting instances (something like royal flush is drawn or all players fold on postFlop so 1 player instantly wins)). We can and should rig these using specific run statements, but still need to show them. 
 
-<<<<<<< HEAD
+Link to project video:
+
 ![One player remains and wins with straight](image.png)
 
 ![Two players remain](image-1.png)
 
 ![Winner with Full House](image-2.png)
-=======
-TESTING:
-
-For this model we tested every predicate. Deal cards, initRound, wellformed cards and unique cards were fairly easy to test because they do not deal with traces, or valid transition. Valid Transition was incredibly hard because the program took a lot of time to run so we could not get many results, but with the evaluator, and our visualizer we were able to see what was going wrong and fix it, until we had a functioning program. The same goes for evaluate hand, where we also had to rely heavily on the table of sterling and the visualizer, which we test by applying traces to a certain hand(pair, two pair, ect) and then check if the score of the player is the appropriate one. For the property tests of strategies, we tested them by creating 5 different test expects, one for each strategy, and isolated each case by adding new properties to see what the result would be, or if they have good chances of winning, etc. We ended up with 5 different test blocks that had a unique set of properties that would test the strategies.
->>>>>>> 20cd79ddc4d36d2b97922d730bdb40176c9b2894
